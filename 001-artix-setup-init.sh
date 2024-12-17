@@ -8,6 +8,8 @@ function is_yay_installed {
 # Update mirrorlists
 sudo curl -o /etc/pacman.d/mirrorlist https://gitea.artixlinux.org/packages/artix-mirrorlist/raw/branch/master/mirrorlist
 sudo curl -o /etc/pacman.d/mirrorlist-arch https://archlinux.org/mirrorlist/?country=AU&protocol=http&protocol=https&ip_version=4
+
+
 sudo sed -i 's/^#Server/Server/' /etc/pacman.d/mirrorlist-arch
 
 # Define the file and tags
@@ -85,4 +87,22 @@ echo "to install larbs run: sh larbs.sh"
 sudo pacman -S grub os-prober --noconfirm
 sudo os-prober
 sudo grub-mkconfig -o /boot/grub/grub.cfg
+
+#setup services
+sudo mkdir /run/runit/service -P
+sudo ln -s /etc/runit/sv/connmand /run/runit/service/    
+sudo ln -s /etc/runit/sv/connmand /etc/runit/runsvdir/default
+# ln -s /etc/runit/sv/NetworkManager /run/runit/service/
+
+sudo ln -s /etc/runit/sv/dhcpcd /run/runit/service/
+sudo ln -s /etc/runit/sv/dhcpcd /etc/runit/runsvdir/default
+
+sudo ln -s /etc/runit/sv/bluetoothd /run/runit/service/
+sudo ln -s /etc/runit/sv/bluetoothd /etc/runit/runsvdir/default
+
+sudo ln -s /etc/runit/sv/cupsd /run/runit/service/
+sudo ln -s /etc/runit/sv/cupsd /etc/runit/runsvdir/default
+
+sudo ln -s /etc/runit/sv/acpid /run/runit/service/
+sudo ln -s /etc/runit/sv/acpid /etc/runit/runsvdir/default
 
