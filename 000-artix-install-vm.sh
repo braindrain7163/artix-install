@@ -53,28 +53,8 @@ sudo mount ${disk}2 /mnt
 sudo mkdir -p /mnt/boot
 sudo mount ${disk}1 /mnt/boot
 
-# Step 1: Confirm Formatting Root Partition
-echo "Step 1: Format the root partition ($ROOT_PART)."
-read -p "Do you want to format the root partition? (y/n): " CONFIRM
-if [[ "$CONFIRM" =~ ^[Yy]$ ]]; then
-    mkfs.ext4 -L root $ROOT_PART
-    echo "Root partition formatted."
-else
-    echo "Skipping root partition formatting."
-fi
-
-# Step 2: Confirm Mounting Partitions
-echo "Step 2: Mount partitions."
-read -p "Do you want to mount the partitions? (y/n): " CONFIRM
-if [[ "$CONFIRM" =~ ^[Yy]$ ]]; then
-    mount $ROOT_PART $MOUNT_POINT
-    echo "Partitions mounted."
-else
-    echo "Skipping partition mounting."
-fi
-
-# Step 3: Confirm Installing Base System
-echo "Step 3: Install the base system."
+#Installing Base System
+echo "Install the base system."
 read -p "Do you want to install the base system? (y/n): " CONFIRM
 if [[ "$CONFIRM" =~ ^[Yy]$ ]]; then
     basestrap $MOUNT_POINT base base-devel runit elogind-runit linux linux-firmware nano intel-ucode git vi man-db htop neovim sudo
@@ -83,8 +63,8 @@ else
     echo "Skipping base system installation."
 fi
 
-# Step 4: Confirm Generating fstab
-echo "Step 4: Generate fstab."
+#Confirm Generating fstab
+echo "Generate fstab."
 read -p "Do you want to generate the fstab file? (y/n): " CONFIRM
 if [[ "$CONFIRM" =~ ^[Yy]$ ]]; then
     if command -v fstabgen &> /dev/null; then
@@ -102,8 +82,8 @@ else
     echo "Skipping fstab generation."
 fi
 
-# Step 5: Confirm Entering Chroot
-echo "Step 5: Chroot into the new system."
+#Confirm Entering Chroot
+echo "Chroot into the new system."
 read -p "Do you want to chroot into the new system? (y/n): " CONFIRM
 if [[ "$CONFIRM" =~ ^[Yy]$ ]]; then
     artix-chroot $MOUNT_POINT /bin/bash << EOT
@@ -150,7 +130,7 @@ EOF
     pacman-key --populate archlinux
     pacman -S connman-runit --noconfirm
     # ln -s /etc/runit/sv/connmand /run/runit/service/    
-    # ln -s /etc/runit/sv/connmand /etc/runit/runsvdir/default
+    ln -s /etc/runit/sv/connmand /etc/runit/runsvdir/default
 
     #network setup
     pacman -S networkmanager networkmanager-runit network-manager-applet --noconfirm
@@ -178,8 +158,12 @@ echo "   artix-chroot $MOUNT_POINT /bin/bash"
 echo "2. EDITOR=nano visudo"
 echo "3. Find Wheel Group"
 echo "4. Uncomment %wheel ALL=(All) ALL"
-echo "7. Reboot the system."
+echo "5. Check Connection Manager is setup"
+echo "   ln -s /etc/runit/sv/connmand /etc/runit/runsvdir/default"
+echo "6. Reboot the system."
 
-#https://github.com/Zerogaku/Artix-install-guide
+echo "Check these resrouces for assistance"
+echo "https://github.com/Zerogaku/Artix-install-guide/"
+echo "https://cheatsheets.stephane.plus/distros/arch-based/artix_installation/"
 
 echo "Installation complete. Reboot into your new system when ready and check https://github.com/Zerogaku/Artix-install-guide for some more hints"
