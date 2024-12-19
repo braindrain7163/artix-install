@@ -42,8 +42,12 @@ sudo parted $disk -- set 1 boot on
 # Format the partition
 sudo mkfs.ext4 ${disk}1
 
+# Set the mount point
+MOUNT_POINT="/mnt"
+sudo mkdir -p $MOUNT_POINT
+
 # Mount the partition
-sudo mount ${disk}1 /mnt
+sudo mount ${disk}1 $MOUNT_POINT
 
 #Installing Base System
 echo "Install the base system."
