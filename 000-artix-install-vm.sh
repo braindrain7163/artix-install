@@ -29,24 +29,29 @@ TIMEZONE=${TIMEZONE:-Australia/Brisbane}  # Default to 'Australia/Brisbane'
 
 echo "=== Identifying Partitions ==="
 
-# Detect Root Partition
-ROOT_PART=$(lsblk -o NAME,FSTYPE,SIZE -nr | grep -iE "ext4|vda|disk" | awk '{print "/dev/" $1}')
-if [ -z "$ROOT_PART" ]; then
-    echo "Root partition not detected. Please specify manually."
-    read -p "Enter Root Partition: " ROOT_PART
-else
-    echo "Detected Root Partition: $ROOT_PART"
-    read -p "Enter Root Partition (default: $ROOT_PART): " ROOT_PART_INPUT
-    ROOT_PART=${ROOT_PART_INPUT:-$ROOT_PART}
-fi
+# Partition the disk
+# Automatically identify the disk (assuming only one disk is attached)
+disk=$(lsblk -dn -o NAME,TYPE | awk '$2=="disk" {print "/dev/"$1}')
+echo "Target disk: $disk"
 
-# Output detected partitions
-echo
-echo "=== Summary of Detected Partitions ==="
-echo "ROOT_PART=\"$ROOT_PART\""
+# Wipe the disk
+sudo wipefs -a $disk
+sudo sgdisk --zap-all $disk
 
-# Mount point for installation
-MOUNT_POINT="/mnt"
+# Create partitions
+sudo parted $disk -- mklabel gpt
+sudo parted $disk -- mkpart ESP fat32 1MiB 512MiB
+sudo parted $disk -- set 1 boot on
+sudo parted $disk -- mkpart primary ext4 512MiB 100%
+
+# Format partitions
+sudo mkfs.fat -F32 ${disk}1
+sudo mkfs.ext4 ${disk}2
+
+# Mount partitions
+sudo mount ${disk}2 /mnt
+sudo mkdir -p /mnt/boot
+sudo mount ${disk}1 /mnt/boot
 
 # Step 1: Confirm Formatting Root Partition
 echo "Step 1: Format the root partition ($ROOT_PART)."
