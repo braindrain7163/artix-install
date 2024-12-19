@@ -1,3 +1,11 @@
+#!/bin/bash
+
+# Ensure the script is run as root
+if [ "$(id -u)" -ne 0 ]; then
+    echo "This script must be run as root."
+    exit 1
+fi
+
 echo "=== Artix Linux Interactive Installation Script ==="
 
 # Prompt for hostname and username
@@ -22,7 +30,7 @@ TIMEZONE=${TIMEZONE:-Australia/Brisbane}  # Default to 'Australia/Brisbane'
 echo "=== Identifying Partitions ==="
 
 # Detect Root Partition
-ROOT_PART=$(lsblk -o NAME,FSTYPE,SIZE -nr | grep -i "ext4" | awk '{print "/dev/" $1}')
+ROOT_PART=$(lsblk -o NAME,FSTYPE,SIZE -nr | grep -iE "ext4|vda|disk" | awk '{print "/dev/" $1}')
 if [ -z "$ROOT_PART" ]; then
     echo "Root partition not detected. Please specify manually."
     read -p "Enter Root Partition: " ROOT_PART
@@ -88,3 +96,85 @@ if [[ "$CONFIRM" =~ ^[Yy]$ ]]; then
 else
     echo "Skipping fstab generation."
 fi
+
+# Step 5: Confirm Entering Chroot
+echo "Step 5: Chroot into the new system."
+read -p "Do you want to chroot into the new system? (y/n): " CONFIRM
+if [[ "$CONFIRM" =~ ^[Yy]$ ]]; then
+    artix-chroot $MOUNT_POINT /bin/bash << EOT
+
+    # Inside chroot: Configure system
+    echo "Configuring system inside chroot..."
+
+    # Setup services directories
+    mkdir -p /run/runit/
+    ln -s /etc/runit/runsvdir/current /run/runit/service
+    
+    # Set timezone
+    ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime
+    hwclock --systohc
+
+    # Set hostname
+    echo "$HOSTNAME" > /etc/hostname
+
+    # Configure /etc/hosts
+    cat << EOF > /etc/hosts
+127.0.0.1   localhost
+::1         localhost
+127.0.1.1   $HOSTNAME.localdomain $HOSTNAME
+EOF
+    
+    # Set root password
+    echo "Set root password:"
+    echo "root:$ROOT_PASSWORD" | chpasswd
+
+    # Create a new user
+    useradd -m -G wheel -s /bin/bash "$USERNAME"
+    echo "Set password for $USERNAME:"
+    echo "$USERNAME:$USER_PASSWORD" | chpasswd
+    usermod -a -G wheel "$USERNAME"
+
+    # Allow sudo for the new user
+    pacman -S sudo --noconfirm
+    echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
+
+    # connman-gtk
+    pacman -U https://omniverse.artixlinux.org/x86_64/connman-gtk-1.1.1-3-x86_64.pkg.tar.zst --noconfirm
+    pacman -S artix-keyring archlinux-keyring --noconfirm
+    pacman-key --populate artix
+    pacman-key --populate archlinux
+    pacman -S connman-runit --noconfirm
+    # ln -s /etc/runit/sv/connmand /run/runit/service/    
+    # ln -s /etc/runit/sv/connmand /etc/runit/runsvdir/default
+
+    #network setup
+    pacman -S networkmanager networkmanager-runit network-manager-applet --noconfirm
+    pacman -S dhcpcd --noconfirm
+    # ln -s /etc/runit/sv/NetworkManager /run/runit/service/
+
+    #basic system
+    sudo pacman -S bluez bluez-runit blues-utils cups cups-runit xdg-utils xdg-user-dirs python --noconfirm
+
+    # Install and configure GRUB
+    pacman -S grub os-prober efibootmgr --noconfirm
+    grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
+    os-prober
+    grub-mkconfig -o /boot/grub/grub.cfg
+    
+EOT
+    echo "Exiting chroot."
+else
+    echo "Skipping chroot."
+fi
+
+# Post-installation instructions
+echo "1. to log back in:"
+echo "   artix-chroot $MOUNT_POINT /bin/bash"
+echo "2. EDITOR=nano visudo"
+echo "3. Find Wheel Group"
+echo "4. Uncomment %wheel ALL=(All) ALL"
+echo "7. Reboot the system."
+
+#https://github.com/Zerogaku/Artix-install-guide
+
+echo "Installation complete. Reboot into your new system when ready and check https://github.com/Zerogaku/Artix-install-guide for some more hints"
