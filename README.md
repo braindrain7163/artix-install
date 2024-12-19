@@ -51,20 +51,22 @@ Artix Install is designed to streamline the process of installing **Artix Linux*
 ### Step 1: Boot into the Artix Linux Live ISO
 
 1. Boot from the **Artix Linux ISO**.
-2. Clone the repository to your live environment:
-
+1. Update the package database:
+   ```bash
+   sudo pacman -Sy
+1. Install Git
+   ```bash
+   sudo ppacman -S git
+1. Clone the repository to your live environment:
    ```bash
    git clone https://github.com/braindrain7163/artix-install.git
    cd artix-install
    ```
-
-3. Make the scripts executable:
-
+1. Make the scripts executable:
    ```bash
    chmod +x *.sh
    ```
-
-4. Run the **main install** script (must run from the ISO environment):
+1. Run the **main install** script (must run from the ISO environment):
 
    ```bash
    ./000-artix-install.sh
