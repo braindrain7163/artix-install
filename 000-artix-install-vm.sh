@@ -34,24 +34,16 @@ echo "=== Identifying Partitions ==="
 disk=$(lsblk -dn -o NAME,TYPE | awk '$2=="disk" {print "/dev/"$1}')
 echo "Target disk: $disk"
 
-# Wipe the disk
-sudo wipefs -a $disk
-sudo sgdisk --zap-all $disk
-
-# Create partitions
-sudo parted $disk -- mklabel gpt
-sudo parted $disk -- mkpart ESP fat32 1MiB 512MiB
+# Create MBR partition table and partitions
+sudo parted $disk -- mklabel msdos
+sudo parted $disk -- mkpart primary ext4 1MiB 100%
 sudo parted $disk -- set 1 boot on
-sudo parted $disk -- mkpart primary ext4 512MiB 100%
 
-# Format partitions
-sudo mkfs.fat -F32 ${disk}1
-sudo mkfs.ext4 ${disk}2
+# Format the partition
+sudo mkfs.ext4 ${disk}1
 
-# Mount partitions
-sudo mount ${disk}2 /mnt
-sudo mkdir -p /mnt/boot
-sudo mount ${disk}1 /mnt/boot
+# Mount the partition
+sudo mount ${disk}1 /mnt
 
 #Installing Base System
 echo "Install the base system."
