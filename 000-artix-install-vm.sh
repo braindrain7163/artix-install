@@ -71,7 +71,7 @@ if [[ "$CONFIRM" =~ ^[Yy]$ ]]; then
         echo "fstabgen or genfstab not found!"
         exit 1
     fi
-    mv /tmp/fstab $MOUNT_POINT/etc/fstab
+    sudo mv /tmp/fstab $MOUNT_POINT/etc/fstab
     echo "fstab file generated:"
     cat $MOUNT_POINT/etc/fstab
 else
