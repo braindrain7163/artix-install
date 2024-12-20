@@ -120,21 +120,22 @@ EOF
     echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
 
     # connman-gtk
-    pacman -U https://omniverse.artixlinux.org/x86_64/connman-gtk-1.1.1-3-x86_64.pkg.tar.zst --noconfirm
-    pacman -S artix-keyring archlinux-keyring --noconfirm
-    pacman-key --populate artix
-    pacman-key --populate archlinux
-    pacman -S connman-runit --noconfirm
-    # ln -s /etc/runit/sv/connmand /run/runit/service/    
-    ln -s /etc/runit/sv/connmand /etc/runit/runsvdir/default
+    # pacman -U https://omniverse.artixlinux.org/x86_64/connman-gtk-1.1.1-3-x86_64.pkg.tar.zst --noconfirm
+    # pacman -S artix-keyring archlinux-keyring --noconfirm
+    # pacman-key --populate artix
+    # pacman-key --populate archlinux
+    # pacman -S connman-runit --noconfirm
+    # # ln -s /etc/runit/sv/connmand /run/runit/service/    
+    # ln -s /etc/runit/sv/connmand /etc/runit/runsvdir/default
 
     #network setup
     pacman -S networkmanager networkmanager-runit network-manager-applet --noconfirm
-    pacman -S dhcpcd --noconfirm
-    # ln -s /etc/runit/sv/NetworkManager /run/runit/service/
+    # pacman -S dhcpcd --noconfirm
+    ln -s /etc/runit/sv/NetworkManager /run/runit/service/
 
     #basic system
-    sudo pacman -S bluez bluez-runit blues-utils cups cups-runit xdg-utils xdg-user-dirs python --noconfirm
+    pacman -S xdg-utils xdg-user-dirs python --noconfirm
+    pacman -S xf86-video-qxl spice-vdagent mesa --noconfirm
 
     # Install and configure GRUB
     pacman -S grub os-prober efibootmgr --noconfirm
