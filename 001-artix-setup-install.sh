@@ -1,9 +1,9 @@
+#!/bin/bash
 
-# Append the tags and their content at the end of the file
-for tag_content in "${tags[@]}"; do
-    IFS=":" read -r tag content <<< "$tag_content"
-    echo -e "\n$tag\n$content" >> "$file"
-done
+# Function to check if yay is installed
+function is_yay_installed {
+  command -v yay >/dev/null 2>&1
+}
 
 # Update and populate keyrings
 sudo pacman -Sy gnupg archlinux-keyring artix-keyring --noconfirm
