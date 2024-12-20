@@ -9,7 +9,6 @@ function is_yay_installed {
 sudo curl -o /etc/pacman.d/mirrorlist https://gitea.artixlinux.org/packages/artix-mirrorlist/raw/branch/master/mirrorlist
 sudo curl -o /etc/pacman.d/mirrorlist-arch https://archlinux.org/mirrorlist/?country=AU&protocol=http&protocol=https&ip_version=4
 
-
 sudo sed -i 's/^#Server/Server/' /etc/pacman.d/mirrorlist-arch
 
 # Define the file and tags
@@ -79,6 +78,7 @@ fi
 sudo pacman -S world/python-yaml --noconfirm
 
 #install larbs
+mkdir -p ~/source/arch-packages
 cd ~/source/arch-packages
 curl -LO larbs.xyz/larbs.sh
 echo "to install larbs run: sh larbs.sh"
