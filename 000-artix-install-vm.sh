@@ -138,10 +138,13 @@ EOF
     pacman -S xf86-video-qxl spice-vdagent mesa --noconfirm
 
     # Install and configure GRUB
-    pacman -S grub os-prober efibootmgr --noconfirm
-    grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
+    pacman -S grub os-prober --noconfirm
+    grub-install --target=i386-pc $disk
     os-prober
     grub-mkconfig -o /boot/grub/grub.cfg
+    
+    # Enable essential services
+    ln -s /etc/runit/sv/NetworkManager /etc/runit/runsvdir/default/
     
 EOT
     echo "Exiting chroot."
