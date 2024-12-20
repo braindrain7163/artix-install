@@ -34,6 +34,9 @@ echo "=== Identifying Partitions ==="
 disk=$(lsblk -dn -o NAME,TYPE | awk '$2=="disk" {print "/dev/"$1}')
 echo "Target disk: $disk"
 
+# Wipe the disk
+sudo wipefs -a $disk
+
 # Create MBR partition table and partitions
 sudo parted $disk -- mklabel msdos
 sudo parted $disk -- mkpart primary ext4 1MiB 100%
