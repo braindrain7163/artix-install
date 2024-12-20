@@ -34,6 +34,12 @@ echo "=== Identifying Partitions ==="
 disk=$(lsblk -dn -o NAME,TYPE | awk '$2=="disk" {print "/dev/"$1}')
 echo "Target disk: $disk"
 
+# Check if the disk is mounted and unmount it if necessary
+if mount | grep -q ${disk}1; then
+  echo "${disk}1 is mounted. Unmounting..."
+  sudo umount ${disk}1
+fi
+
 # Wipe the disk
 sudo wipefs -a $disk
 
