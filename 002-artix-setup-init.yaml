@@ -22,6 +22,8 @@ required_packages:
       - 'world/git'
       - 'world/wget'
       - 'world/htop'
-      - 'world/nvtop'
       - 'extra/libva'
-      
+      - 'world/pipewire'
+      - 'world/pipewire-alsa'
+      - 'world/pipewire-pulse'
+      - 'world/pipewire-jack'      
