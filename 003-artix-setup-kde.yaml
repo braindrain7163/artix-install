@@ -1,0 +1,56 @@
+# KDE Plasma with PipeWire Setup
+kde_plasma:
+  packages:
+    command: 'sudo pacman -S {package} --needed --noconfirm'
+    package:
+      # Base KDE Plasma packages
+      - world/plasma
+      #- world/kde-applications
+      - world/sddm
+      - world/xorg
+      - world/pipewire
+      - world/pipewire-pulse
+      - world/pipewire-alsa
+      - world/pipewire-jack
+      - world/wireplumber
+      - world/gst-plugin-pipewire
+      - world/bluez
+      - world/bluez-utils
+      - world/bluez-qt
+      - world/alsa-utils
+  setup_service:
+    shell:
+        # Enable SDDM (Display Manager) using Runit
+        - 'sudo ln -s /etc/runit/sv/sddm /run/runit/service'
+        - 'sudo sv start sddm'
+        # Enable PipeWire and related services using Runit
+        - 'sudo ln -s /etc/runit/sv/pipewire /run/runit/service'
+        - 'sudo ln -s /etc/runit/sv/pipewire-pulse /run/runit/service'
+        - 'sudo ln -s /etc/runit/sv/wireplumber /run/runit/service'
+        - 'sudo sv start pipewire'
+        - 'sudo sv start pipewire-pulse'
+        - 'sudo sv start wireplumber'
+
+  configuration:
+    shell:
+        # Configure KDE Plasma as the default session
+        - 'echo "exec startplasma-x11" > ~/.xinitrc'
+
+    file:
+        # Create a PipeWire configuration file if needed (optional)
+        create: true
+        name: '/etc/pipewire/pipewire.conf'
+        content: |
+            # Example PipeWire configuration
+            context.properties = {
+                default.clock.rate          = 48000
+                default.clock.allowed-rates = [ 48000 ]
+                default.clock.quantum       = 1024
+                default.clock.min-quantum   = 32
+                default.clock.max-quantum   = 8192
+            }
+
+  cleanup:
+    shell:
+        # Cleanup unnecessary packages or caches (optional)
+        - 'sudo pacman -Scc --noconfirm'

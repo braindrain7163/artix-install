@@ -1,0 +1,40 @@
+#apps
+other_apps:
+  packages:
+    command: 'sudo pacman -S {package} --needed --noconfirm'
+    package:
+      - multilib/steam
+      - world/spectacle
+      - galaxy/firefox
+      - world/partitionmanager
+      - galaxy/firefox
+      - galaxy/signal-desktop
+      - galaxy/telegram-desktop
+      - extra/bash-language-server
+      - world/shellcheck-bin
+      - extra/kalk
+      - extra/nextcloud-client
+      - extra/discord
+      - extra/jupyterlab
+      - extra/openrazer-daemon
+      - extra/openrazer-driver-dkms
+      - extra/python-openrazer
+      - world/gwenview
+      - world/exfatprogs
+      - world/gvfs
+      - extra/rapid-photo-downloader
+      - world/python-openpyxl
+      - world/python-pandas
+      - world/spice-vdagent
+
+    command: 'yay -S {package} --needed --noconfirm'
+    package:
+      - onlyoffice-bin
+      - microsoft-edge-stable-bin
+      - brave-bin
+      - ungoogled-chromium-bin
+      - freetube
+      - brscan5
+      - sublime-text-4
+      - xerox-docucentre-driver
+      - brother-dcpl2540dw-cups

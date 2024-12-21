@@ -1,0 +1,41 @@
+#docker
+setup_docker:
+  packages:
+    command: 'sudo pacman -S {package} --needed --noconfirm'
+    package:
+      - 'world/docker'
+      - 'extra/docker-compose'
+      - 'world/docker-runit'
+      - 'nt'
+    shell:
+      - 'sudo mkdir -p /var/log/docker'  # Ensure log directory exists
+      - 'sudo ln -s /etc/runit/sv/docker /run/runit/service'  # Link Docker service
+      - 'sudo sv start docker'  # Start Docker service
+      - 'sudo usermod -aG docker $USER'  # Add user to Docker group
+      - 'docker --version >> /var/log/docker/setup.log 2>&1'  # Log Docker version
+      - 'docker run hello-world >> /var/log/docker/setup.log 2>&1'  # Log hello-world test
+      - 'sudo mkdir -p /etc/docker'  # Create Docker configuration directory
+    create:
+      sudo: true
+      file: '/etc/docker/daemon.json'
+      content: |
+        {
+          "default-runtime": "nvidia",
+          "runtimes": {
+            "nvidia": {
+              "path": "nvidia-container-runtime",
+              "runtimeArgs": []
+            }
+          }
+        }
+  setup_logging:
+    file:
+      create: true
+      name: '/etc/runit/sv/docker/log/run'
+      content: |
+        #!/bin/sh
+        exec svlogd -tt /var/log/docker
+    shell:
+      - 'sudo chmod +x /etc/runit/sv/docker/log/run'  # Make log script executable
+      - 'sudo mkdir -p /var/log/docker'  # Ensure Docker log directory exists
+      - 'sudo sv restart docker'  # Restart Docker service to apply logging

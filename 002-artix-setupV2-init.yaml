@@ -1,0 +1,57 @@
+pacman_conf:
+  packages:
+    command: 'yay -S {package} --needed --noconfirm'
+    package:
+        - 'pacman-mirrors-helper-git'
+        - 'rankmirrors'
+    command: 'sudo pacman -S {package} --needed --noconfirm'
+    package:
+        - 'extra/reflector'
+        - 'galaxy/artix-archlinux-support'
+  shell:
+    - 'sudo reflector --verbose --country "Australia" --latest 10 --sort rate --protocol https --save /etc/pacman.d/mirrorlist-arch'
+    - 'sudo pacman-key --populate archlinux'
+
+#install required packages
+required_packages:
+  packages:
+    command: 'sudo pacman -S {package} --needed --noconfirm'
+    package:
+      - 'world/git'
+      - 'system/binutils'
+      - 'system/make'
+      - 'system/gcc'
+      - 'system/pkgconf'
+      - 'system/fakeroot'
+      - 'system/base-devel'
+      - 'world/git'
+      - 'world/wget'
+      - 'world/nvidia'
+      - 'world/nvidia-utils'
+      - 'world/intel-media-driver'
+      - 'extra/libva'
+      - 'world/nvidia-settings'
+      - 'lib32/lib32-libglvnd'
+      - 'world/system-config-printer'
+      - 'world/nvtop'
+      - 'world/htop'
+
+# envycontrol for changing graphics cards
+setup_envycontrol:
+  shell:
+    # Download and set up nvidia-persistenced for Runit
+    - 'sudo curl -o ~/Downloads/nvidia-persistenced.template https://raw.githubusercontent.com/NVIDIA/nvidia-persistenced/main/init/sysv/nvidia-persistenced.template'
+    - 'sudo mv ~/Downloads/nvidia-persistenced.template /etc/runit/sv/nvidia-persistenced'
+    - 'sudo chmod +x /etc/runit/sv/nvidia-persistenced'
+
+  packages:
+    command: 'yay -S {package} --needed --noconfirm'
+    package:
+      - 'envycontrol'
+
+  shell:
+    # Download and replace envycontrol.py for Runit
+    - 'sudo curl -o ~/Downloads/envycontrol.py https://raw.githubusercontent.com/ToneyFoxxy/ToneyFoxxy-EnvyControl-Without-SystemD/main/Runit/envycontrol.py'
+    - 'sudo mv /usr/lib/python3.12/site-packages/envycontrol.py /usr/lib/python3.12/site-packages/envycontrol.py.bak'  # Backup the original file
+    - 'sudo cp ~/Downloads/envycontrol.py /usr/lib/python3.12/site-packages/envycontrol.py'
+    - 'sudo chmod +x /usr/lib/python3.12/site-packages/envycontrol.py'
