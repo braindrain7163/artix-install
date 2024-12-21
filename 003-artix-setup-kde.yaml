@@ -8,16 +8,6 @@ kde_plasma:
       #- world/kde-applications
       - world/sddm
       - world/xorg
-      - world/pipewire
-      - world/pipewire-pulse
-      - world/pipewire-alsa
-      - world/pipewire-jack
-      - world/wireplumber
-      - world/gst-plugin-pipewire
-      - world/bluez
-      - world/bluez-utils
-      - world/bluez-qt
-      - world/alsa-utils
   setup_service:
     shell:
         # Enable SDDM (Display Manager) using Runit
