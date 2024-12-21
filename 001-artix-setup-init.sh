@@ -63,20 +63,46 @@ fi
 
 echo "Mirrorlist update completed successfully!"
 
+#!/bin/bash
 
 # Define the file and tags
-file="/etc/pacman.conf"
-tags=(
+path="/etc"
+file="pacman.conf"
+DOWNLOAD_DIR=~/source/arch-packages
+TAGS=(
     "[lib32]:Include = /etc/pacman.d/mirrorlist"
     "[extra]:Include = /etc/pacman.d/mirrorlist-arch"
     "[multilib]:Include = /etc/pacman.d/mirrorlist-arch"
 )
 
+# Ensure the download directory exists
+mkdir -p "$DOWNLOAD_DIR"
+
 # Backup the pacman.conf file if not already backed up
-if [[ ! -f "$file.bak" ]]; then
-  sudo cp "$file" "$file.bak"
-elif [[ -f "$file.bak" ]]; then
-  sudo cp "$file.bak" "$file"
+PACMAN_CONF_BACKUP="$DOWNLOAD_DIR/$file.bak"
+if [[ ! -f "$PACMAN_CONF_BACKUP" ]]; then
+  echo "Backing up $path/$file to $PACMAN_CONF_BACKUP..."
+  sudo cp "$path/$file" "$PACMAN_CONF_BACKUP"
+else
+  echo "Backup already exists at $PACMAN_CONF_BACKUP."
 fi
 
-echo -e "\n$tag\n$content" | sudo tee -a "$file" >/dev/null
+# Append the tags to the backup file
+echo "Appending tags to the backup file..."
+for tag_content in "${TAGS[@]}"; do
+  # Extract the tag and content
+  tag="${tag_content%%:*}"
+  content="${tag_content#*:}"
+
+  echo -e "\n$tag\n$content" | sudo tee -a "$PACMAN_CONF_BACKUP" >/dev/null
+  echo "Added $tag to the backup file."
+done
+
+# Replace the original pacman.conf with the modified backup
+echo "Replacing $path/$file with the updated backup..."
+if sudo cp "$PACMAN_CONF_BACKUP" "$path/$file"; then
+  echo "$file updated successfully."
+else
+  echo "Failed to update $file." >&2
+  exit 1
+fi
