@@ -73,6 +73,7 @@ TAGS=(
     "[lib32]:Include = /etc/pacman.d/mirrorlist"
     "[extra]:Include = /etc/pacman.d/mirrorlist-arch"
     "[multilib]:Include = /etc/pacman.d/mirrorlist-arch"
+    "[community]:Include = /etc/pacman.d/mirrorlist-arch"
 )
 
 # Ensure the download directory exists
