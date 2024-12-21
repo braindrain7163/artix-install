@@ -17,24 +17,19 @@ required_packages:
   packages:
     command: 'sudo pacman -S {package} --needed --noconfirm'
     package:
-      - 'world/git'
-      - 'system/binutils'
-      - 'system/make'
-      - 'system/gcc'
-      - 'system/pkgconf'
-      - 'system/fakeroot'
-      - 'system/base-devel'
-      - 'world/git'
-      - 'world/wget'
       - 'world/nvidia'
       - 'world/nvidia-utils'
-      - 'world/intel-media-driver'
-      - 'extra/libva'
       - 'world/nvidia-settings'
+      - 'world/intel-media-driver'
       - 'lib32/lib32-libglvnd'
+      - 'extra/cups'
+      - 'extra/bluez'
+      - 'extra/bluez-utils'
+      - 'extra/pipewire'
+      - 'extra/pipewire-alsa'
+      - 'extra/pipewire-pulse'
+      - 'extra/pipewire-jack'
       - 'world/system-config-printer'
-      - 'world/nvtop'
-      - 'world/htop'
 
 # envycontrol for changing graphics cards
 setup_envycontrol:
