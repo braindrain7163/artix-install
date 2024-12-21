@@ -13,7 +13,7 @@ sudo pacman-key --populate archlinux artix
 sudo pacman -Syuu --noconfirm
 
 #addbuild stuff
-sudo pacman -S curl git base-devel artix-archlinux-support --noconfirm
+sudo pacman -S curl git base-devel artix-archlinux-support  archlinux-mirrorlist --noconfirm
 
 if ! is_yay_installed; then
   echo "yay not found, proceeding to build..."
