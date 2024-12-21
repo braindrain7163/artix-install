@@ -70,18 +70,13 @@ sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 #setup services
 sudo mkdir /run/runit/service -P
-sudo ln -s /etc/runit/sv/connmand /run/runit/service/    
-sudo ln -s /etc/runit/sv/connmand /etc/runit/runsvdir/default
 # ln -s /etc/runit/sv/NetworkManager /run/runit/service/
 
-sudo ln -s /etc/runit/sv/dhcpcd /run/runit/service/
-sudo ln -s /etc/runit/sv/dhcpcd /etc/runit/runsvdir/default
+# sudo ln -s /etc/runit/sv/bluetoothd /run/runit/service/
+# sudo ln -s /etc/runit/sv/bluetoothd /etc/runit/runsvdir/default
 
-sudo ln -s /etc/runit/sv/bluetoothd /run/runit/service/
-sudo ln -s /etc/runit/sv/bluetoothd /etc/runit/runsvdir/default
-
-sudo ln -s /etc/runit/sv/cupsd /run/runit/service/
-sudo ln -s /etc/runit/sv/cupsd /etc/runit/runsvdir/default
+# sudo ln -s /etc/runit/sv/cupsd /run/runit/service/
+# sudo ln -s /etc/runit/sv/cupsd /etc/runit/runsvdir/default
 
 sudo ln -s /etc/runit/sv/acpid /run/runit/service/
 sudo ln -s /etc/runit/sv/acpid /etc/runit/runsvdir/default
