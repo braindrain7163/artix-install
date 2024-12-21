@@ -27,3 +27,4 @@ required_packages:
       - 'world/pipewire-alsa'
       - 'world/pipewire-pulse'
       - 'world/pipewire-jack'      
+      - 'world/gst-plugin-pipewire'
