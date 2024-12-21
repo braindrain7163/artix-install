@@ -60,7 +60,7 @@ sudo os-prober
 sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 #setup services
-sudo mkdir /run/runit/service -P
+sudo mkdir -p /run/runit/service
 
 # Link acpid service
 if [[ ! -L /run/runit/service/acpid ]]; then
