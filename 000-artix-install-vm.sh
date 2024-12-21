@@ -126,7 +126,7 @@ EOF
 
     # Allow sudo for the new user
     pacman -S sudo --noconfirm
-    echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
+    echo "%wheel ALL=(ALL:ALL) ALL" >> /etc/sudoers
 
     # connman-gtk
     # pacman -U https://omniverse.artixlinux.org/x86_64/connman-gtk-1.1.1-3-x86_64.pkg.tar.zst --noconfirm
