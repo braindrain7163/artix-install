@@ -4,6 +4,7 @@ setup_spice_guest:
     command: 'sudo pacman -S {package} --needed --noconfirm'
     package:
       - 'world/spice-vdagent'
+      - 'world/spice-vdagent-runit'
       - 'world/spice-protocol'
       - 'world/xf86-video-qxl'
       - 'world/xorg-xrandr'
