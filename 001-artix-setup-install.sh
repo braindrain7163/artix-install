@@ -60,8 +60,8 @@ sudo pacman -S world/python-yaml --noconfirm
 #install larbs
 mkdir -p ~/source/arch-packages
 cd ~/source/arch-packages
-curl -LO larbs.xyz/larbs.sh
-echo "to install larbs run: sh larbs.sh"
+# curl -LO larbs.xyz/larbs.sh
+# echo "to install larbs run: sh larbs.sh"
 
 #fix grub
 sudo pacman -S grub os-prober --noconfirm
