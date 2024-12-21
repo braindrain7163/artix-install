@@ -1,0 +1,29 @@
+# Lightweight KDE Setup for VMs
+setup_kde_vm:
+  packages:
+    command: 'sudo pacman -S {package} --needed --noconfirm'
+    package:
+      - 'world/plasma-desktop'
+      - 'world/konsole'
+      - 'world/dolphin'
+      - 'world/sddm'
+      - 'world/kscreen'
+      - 'world/kate'
+      - 'world/okular'
+      - 'world/systemsettings'
+      - 'world/xf86-video-qxl'
+  enable_services:
+    shell:
+      - 'sudo ln -s /etc/runit/sv/sddm /var/service/'  # Enable SDDM display manager
+      - 'sudo sv start sddm'  # Start SDDM service
+  optimize_performance:
+    shell:
+      - 'balooctl disable'  # Disable search indexing (Baloo)
+      - 'kwriteconfig5 --file kwinrc --group Compositing --key Enabled false'  # Disable compositor
+      - 'kwriteconfig5 --file kwinrc --group Compositing --key OpenGLIsUnsafe true'  # Mark OpenGL as unsafe
+  manual_startup:
+    file:
+      create: true
+      name: '/home/$USER/.xinitrc'
+      content: |
+        exec startplasma-x11
