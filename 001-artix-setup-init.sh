@@ -1,5 +1,8 @@
 #!/bin/bash
 
+sudo pacman -Sy
+sudo pacman -S archlinux-mirrorlist --noconfirm
+
 # Variables
 DOWNLOAD_DIR=~/source/arch-packages
 ARTIX_MIRRORLIST="/etc/pacman.d/mirrorlist"
@@ -107,3 +110,5 @@ else
   echo "Failed to update $file." >&2
   exit 1
 fi
+
+sudo pacman -Sy
