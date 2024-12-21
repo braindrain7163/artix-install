@@ -1,51 +1,36 @@
-pacman_conf:
-  packages:
-    command: 'yay -S {package} --needed --noconfirm'
-    package:
-        - 'pacman-mirrors-helper-git'
-        - 'rankmirrors'
-    command: 'sudo pacman -S {package} --needed --noconfirm'
-    package:
-        - 'extra/reflector'
-        - 'galaxy/artix-archlinux-support'
-  shell:
-    - 'sudo reflector --verbose --country "Australia" --latest 10 --sort rate --protocol https --save /etc/pacman.d/mirrorlist-arch'
-    - 'sudo pacman-key --populate archlinux'
-
-#install required packages
-required_packages:
+# SPICE Guest Setup
+setup_spice_guest:
   packages:
     command: 'sudo pacman -S {package} --needed --noconfirm'
     package:
-      - 'world/nvidia'
-      - 'world/nvidia-utils'
-      - 'world/nvidia-settings'
-      - 'world/intel-media-driver'
-      - 'lib32/lib32-libglvnd'
-      - 'world/cups'
-      - 'world/cups-runit'
-      - 'world/nvtop'
-      - 'world/bluez'
-      - 'world/bluez-runit'
-      - 'world/bluez-utils'
-      - 'world/system-config-printer'
-
-# envycontrol for changing graphics cards
-setup_envycontrol:
-  shell:
-    # Download and set up nvidia-persistenced for Runit
-    - 'sudo curl -o ~/Downloads/nvidia-persistenced.template https://raw.githubusercontent.com/NVIDIA/nvidia-persistenced/main/init/sysv/nvidia-persistenced.template'
-    - 'sudo mv ~/Downloads/nvidia-persistenced.template /etc/runit/sv/nvidia-persistenced'
-    - 'sudo chmod +x /etc/runit/sv/nvidia-persistenced'
-
-  packages:
-    command: 'yay -S {package} --needed --noconfirm'
-    package:
-      - 'envycontrol'
-
-  shell:
-    # Download and replace envycontrol.py for Runit
-    - 'sudo curl -o ~/Downloads/envycontrol.py https://raw.githubusercontent.com/ToneyFoxxy/ToneyFoxxy-EnvyControl-Without-SystemD/main/Runit/envycontrol.py'
-    - 'sudo mv /usr/lib/python3.12/site-packages/envycontrol.py /usr/lib/python3.12/site-packages/envycontrol.py.bak'  # Backup the original file
-    - 'sudo cp ~/Downloads/envycontrol.py /usr/lib/python3.12/site-packages/envycontrol.py'
-    - 'sudo chmod +x /usr/lib/python3.12/site-packages/envycontrol.py'
+      - 'world/spice-vdagent'
+      - 'world/spice-protocol'
+      - 'world/xf86-video-qxl'
+      - 'world/xorg-xrandr'
+  enable_services:
+    shell:
+      - 'sudo ln -s /etc/runit/sv/spice-vdagentd /var/service/'  # Enable SPICE agent service
+      - 'sudo sv start spice-vdagentd'  # Start SPICE agent service
+  configure_xorg:
+    file:
+      create: true
+      name: '/etc/X11/xorg.conf.d/10-qxl.conf'
+      content: |
+        Section "Device"
+            Identifier "QXL"
+            Driver "qxl"
+        EndSection
+  test_setup:
+    shell:
+      - 'ps aux | grep spice-vdagent > /var/log/spice-guest-setup.log'  # Verify SPICE agent is running
+      - 'xrandr --query >> /var/log/spice-guest-setup.log'  # Log resolution details
+  optional_audio:
+    packages:
+      command: 'sudo pacman -S {package} --needed --noconfirm'
+      package:
+        - 'world/alsa-utils'
+        - 'world/pipewire'
+        - 'world/pipewire-alsa'
+        - 'world/pipewire-pulse'
+    shell:
+      - 'speaker-test -t wav -c 2 >> /var/log/spice-guest-setup.log 2>&1'  # Test audio setup
