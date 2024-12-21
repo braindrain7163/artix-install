@@ -54,12 +54,6 @@ fi
 # Install PyYAML
 sudo pacman -S world/python-yaml --noconfirm
 
-#install larbs
-mkdir -p ~/source/arch-packages
-cd ~/source/arch-packages
-# curl -LO larbs.xyz/larbs.sh
-# echo "to install larbs run: sh larbs.sh"
-
 #fix grub
 sudo pacman -S grub os-prober --noconfirm
 sudo os-prober
@@ -67,14 +61,33 @@ sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 #setup services
 sudo mkdir /run/runit/service -P
-# ln -s /etc/runit/sv/NetworkManager /run/runit/service/
 
-# sudo ln -s /etc/runit/sv/bluetoothd /run/runit/service/
-# sudo ln -s /etc/runit/sv/bluetoothd /etc/runit/runsvdir/default
+# Link acpid service
+if [[ ! -L /run/runit/service/acpid ]]; then
+  sudo ln -s /etc/runit/sv/acpid /run/runit/service/
+  echo "Created symlink: /run/runit/service/acpid"
+else
+  echo "Symlink already exists: /run/runit/service/acpid"
+fi
 
-# sudo ln -s /etc/runit/sv/cupsd /run/runit/service/
-# sudo ln -s /etc/runit/sv/cupsd /etc/runit/runsvdir/default
+if [[ ! -L /etc/runit/runsvdir/default/acpid ]]; then
+  sudo ln -s /etc/runit/sv/acpid /etc/runit/runsvdir/default
+  echo "Created symlink: /etc/runit/runsvdir/default/acpid"
+else
+  echo "Symlink already exists: /etc/runit/runsvdir/default/acpid"
+fi
 
-sudo ln -s /etc/runit/sv/acpid /run/runit/service/
-sudo ln -s /etc/runit/sv/acpid /etc/runit/runsvdir/default
+# Link NetworkManager service
+if [[ ! -L /run/runit/service/NetworkManager ]]; then
+  sudo ln -s /etc/runit/sv/NetworkManager /run/runit/service/
+  echo "Created symlink: /run/runit/service/NetworkManager"
+else
+  echo "Symlink already exists: /run/runit/service/NetworkManager"
+fi
 
+if [[ ! -L /etc/runit/runsvdir/default/NetworkManager ]]; then
+  sudo ln -s /etc/runit/sv/NetworkManager /etc/runit/runsvdir/default
+  echo "Created symlink: /etc/runit/runsvdir/default/NetworkManager"
+else
+  echo "Symlink already exists: /etc/runit/runsvdir/default/NetworkManager"
+fi
