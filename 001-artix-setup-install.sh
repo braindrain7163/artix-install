@@ -15,9 +15,6 @@ sudo pacman -Syuu --noconfirm
 #addbuild stuff
 sudo pacman -S curl git base-devel --noconfirm
 
-# Set up yay (AUR Helper)
-mkdir -p ~/source/arch-packages
-
 if ! is_yay_installed; then
   echo "yay not found, proceeding to build..."
 
