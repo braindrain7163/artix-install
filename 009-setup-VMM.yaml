@@ -1,0 +1,37 @@
+# SPICE Host Setup
+setup_spice:
+  packages:
+    command: 'sudo pacman -S {package} --needed --noconfirm'
+    package:
+      - 'extra/qemu-full'
+      - 'world/virt-manager'
+      - 'extra/libvirt'
+      - 'world/spice'
+      - 'world/spice-server'
+      - 'world/spice-protocol'
+      - 'world/spice-vdagent'
+      - 'world/virt-viewer'
+      - 'world/dnsmasq'
+      - 'world/bridge-utils'
+    shell:
+      - 'sudo ln -s /etc/runit/sv/libvirtd /var/service/'  # Enable libvirtd service
+      - 'sudo sv start libvirtd'  # Start libvirtd service
+      - 'sudo usermod -aG libvirt $USER'  # Add user to libvirt group
+      - 'sudo mkdir -p /var/log/libvirt'  # Ensure log directory exists
+  create_config:
+    sudo: true
+    file: '/etc/libvirt/qemu.conf'
+    content: |
+      vnc_listen = "0.0.0.0"
+      spice_listen = "0.0.0.0"
+      spice_tls = 0
+  setup_logging:
+    file:
+      create: true
+      name: '/etc/runit/sv/libvirtd/log/run'
+      content: |
+        #!/bin/sh
+        exec svlogd -tt /var/log/libvirt
+    shell:
+      - 'sudo chmod +x /etc/runit/sv/libvirtd/log/run'  # Make log script executable
+      - 'sudo sv restart libvirtd'  # Restart libvirtd service to apply logging
