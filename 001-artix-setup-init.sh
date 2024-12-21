@@ -79,12 +79,4 @@ elif [[ -f "$file.bak" ]]; then
   sudo cp "$file.bak" "$file"
 fi
 
-# Append the tags and their content at the end of the file if not already present
-for tag_content in "${tags[@]}"; do
-    IFS=":" read -r tag content <<< "$tag_content"
-    if ! grep -q "$tag" "$file"; then
-        echo -e "\n$tag\n$content" | sudo tee -a "$file" >/dev/null
-    else
-        echo "$tag already exists in $file"
-    fi
-done
+echo -e "\n$tag\n$content" | sudo tee -a "$file" >/dev/null
