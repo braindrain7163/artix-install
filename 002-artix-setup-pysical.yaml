@@ -28,10 +28,6 @@ required_packages:
       - 'world/bluez'
       - 'world/bluez-runit'
       - 'world/bluez-utils'
-      - 'world/pipewire'
-      - 'world/pipewire-alsa'
-      - 'world/pipewire-pulse'
-      - 'world/pipewire-jack'
       - 'world/system-config-printer'
 
 # envycontrol for changing graphics cards
