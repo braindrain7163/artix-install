@@ -33,24 +33,24 @@ other_apps:
       - xerox-docucentre-driver
       - brother-dcpl2540dw-cups
 
-openrazer:
-  setup_service:
-    packages:
-      command: "sudo pacman -S {package} --needed --noconfirm"
-      package:
-        - "extra/openrazer-daemon"
-        - "extra/openrazer-driver-dkms"
-        - "extra/python-openrazer"
-    path_init: true
-    run_file:
-      content: |
-        #!/bin/sh
-        exec /usr/bin/openrazer-daemon
-    log_file:
-      content: |
-        #!/bin/sh
-        exec svlogd -tt /var/log/openrazer
-    service_init: true
+# openrazer:
+#   setup_service:
+#     packages:
+#       command: "sudo pacman -S {package} --needed --noconfirm"
+#       package:
+#         - "extra/openrazer-daemon"
+#         - "extra/openrazer-driver-dkms"
+#         - "extra/python-openrazer"
+#     path_init: true
+#     run_file:
+#       content: |
+#         #!/bin/sh
+#         exec /usr/bin/openrazer-daemon
+#     log_file:
+#       content: |
+#         #!/bin/sh
+#         exec svlogd -tt /var/log/openrazer
+#     service_init: true
 
 gvfs:
   setup_service:
