@@ -9,7 +9,7 @@ setup_spice_guest:
       - "world/xorg-xrandr"
 enable_services:
   shell:
-    - "sudo ln -s /etc/runit/sv/spice-vdagentd /run/runit/service/"
+    - "sudo ln -sf /etc/runit/sv/spice-vdagentd /run/runit/service/"
     - "sudo sv start spice-vdagentd"
 configure_xorg:
   file:
@@ -56,9 +56,9 @@ optional_audio:
       - "sudo chmod +x /etc/sv/pipewire/run"
       - "sudo chmod +x /etc/sv/pipewire-pulse/run"
       - "sudo chmod +x /etc/sv/wireplumber/run"
-      - "sudo ln -s /etc/sv/pipewire /run/runit/service/"
-      - "sudo ln -s /etc/sv/pipewire-pulse /run/runit/service/"
-      - "sudo ln -s /etc/sv/wireplumber /run/runit/service/"
+      - "sudo ln -sf /etc/sv/pipewire /run/runit/service/"
+      - "sudo ln -sf /etc/sv/pipewire-pulse /run/runit/service/"
+      - "sudo ln -sf /etc/sv/wireplumber /run/runit/service/"
       - "sudo sv start pipewire"
       - "sudo sv start pipewire-pulse"
       - "sudo sv start wireplumber"
