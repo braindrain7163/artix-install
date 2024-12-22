@@ -20,10 +20,6 @@ configure_xorg:
           Identifier "QXL"
           Driver "qxl"
       EndSection
-test_setup:
-  shell:
-    - "sudo ps aux | grep spice-vdagent > /var/log/spice-guest-setup.log"
-    - "sudo xrandr --query >> /var/log/spice-guest-setup.log"
 optional_audio:
   packages:
     command: "sudo pacman -S {package} --needed --noconfirm"
