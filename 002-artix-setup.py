@@ -131,7 +131,7 @@ def setup_service(service_name, service_config, paths):
             'sudo mkdir -p {sv_path}{service_name}/log/main',
         ]
         for cmd in path_init_commands:
-            execute_shell([cmd.format(**placeholders)], sudo=False)
+            execute_shell([cmd.format(**placeholders)])
 
     # Handle run and log file creation
     for file_type, file_config in [("run_file", "run"), ("log_file", "log/run")]:
