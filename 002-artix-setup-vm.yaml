@@ -28,33 +28,33 @@ optional_audio:
       - "world/pipewire"
       - "world/pipewire-alsa"
       - "world/pipewire-pulse"
-  configure_services:
-    - file:
-        create: true
-        name: "/etc/sv/pipewire/run"
-        content: |
-          #!/bin/sh
-          exec /usr/bin/pipewire
-    - file:
-        create: true
-        name: "/etc/sv/pipewire-pulse/run"
-        content: |
-          #!/bin/sh
-          exec /usr/bin/pipewire-pulse
-    - file:
-        create: true
-        name: "/etc/sv/wireplumber/run"
-        content: |
-          #!/bin/sh
-          exec /usr/bin/wireplumber
-  enable_services:
-    shell:
-      - "sudo chmod +x /etc/sv/pipewire/run"
-      - "sudo chmod +x /etc/sv/pipewire-pulse/run"
-      - "sudo chmod +x /etc/sv/wireplumber/run"
-      - "sudo ln -sf /etc/sv/pipewire /run/runit/service/"
-      - "sudo ln -sf /etc/sv/pipewire-pulse /run/runit/service/"
-      - "sudo ln -sf /etc/sv/wireplumber /run/runit/service/"
-      - "sudo sv start pipewire"
-      - "sudo sv start pipewire-pulse"
-      - "sudo sv start wireplumber"
+configure_services:
+  file:
+    create: true
+    name: '/etc/sv/pipewire/run'
+    content: |
+      #!/bin/sh
+      exec /usr/bin/pipewire
+  file:
+    create: true
+    name: "/etc/sv/pipewire-pulse/run"
+    content: |
+      #!/bin/sh
+      exec /usr/bin/pipewire-pulse
+  file:
+    create: true
+    name: "/etc/sv/wireplumber/run"
+    content: |
+      #!/bin/sh
+      exec /usr/bin/wireplumber
+enable_services:
+  shell:
+    - "sudo chmod +x /etc/sv/pipewire/run"
+    - "sudo chmod +x /etc/sv/pipewire-pulse/run"
+    - "sudo chmod +x /etc/sv/wireplumber/run"
+    - "sudo ln -sf /etc/sv/pipewire /run/runit/service/"
+    - "sudo ln -sf /etc/sv/pipewire-pulse /run/runit/service/"
+    - "sudo ln -sf /etc/sv/wireplumber /run/runit/service/"
+    - "sudo sv start pipewire"
+    - "sudo sv start pipewire-pulse"
+    - "sudo sv start wireplumber"
