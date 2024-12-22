@@ -22,8 +22,8 @@ configure_xorg:
       EndSection
 test_setup:
   shell:
-    - "ps aux | grep spice-vdagent > /var/log/spice-guest-setup.log"
-    - "xrandr --query >> /var/log/spice-guest-setup.log"
+    - "sudo ps aux | grep spice-vdagent > /var/log/spice-guest-setup.log"
+    - "sudo xrandr --query >> /var/log/spice-guest-setup.log"
 optional_audio:
   packages:
     command: "sudo pacman -S {package} --needed --noconfirm"
