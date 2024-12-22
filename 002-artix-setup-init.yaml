@@ -67,19 +67,3 @@ pipewire-pulse:
         exec svlogd -tt /var/log/pipewire-pulse
     service_init: true
     
-pipewire-jack:
-  setup_service:
-    packages:
-      command: "sudo pacman -S {package} --needed --noconfirm"
-      package:
-        - "world/pipewire-jack"
-    path_init: true
-    run_file:
-      content: |
-        #!/bin/sh
-        exec /usr/bin/pipewire-jack
-    log_file:
-      content: |
-        #!/bin/sh
-        exec svlogd -tt /var/log/pipewire-jack
-    service_init: true
