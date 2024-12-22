@@ -136,7 +136,7 @@ def setup_service(service_name, service_config, paths):
         if file_type in service_config:
             file_path = f"{placeholders['sv_path']}{service_name}/{file_config}"
             file_content = service_config[file_type]["content"]
-            write_to_file(file_path, file_content, sudo=False)
+            write_to_file(file_path, file_content, sudo=True)
             execute_shell([f"sudo chmod +x {file_path}"])
 
     # Handle service initialization
