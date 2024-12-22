@@ -39,8 +39,6 @@ def execute_shell(commands, sudo=False, retries=3, delay=5):
                 logger.info(f"Retrying ({attempt}/{retries}): {command}")
                 time.sleep(delay)  # Add a delay before retrying
 
-
-
 def execute_python(script, *args, sudo=False):
     """
     Executes a Python script with optional arguments.
