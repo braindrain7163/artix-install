@@ -9,7 +9,7 @@ setup_spice_guest:
       - "world/xorg-xrandr"
 enable_services:
   shell:
-    - "sudo ln -s /etc/runit/sv/spice-vdagentd /var/service/"
+    - "sudo ln -s /etc/runit/sv/spice-vdagentd /run/runit/service/"
     - "sudo sv start spice-vdagentd"
 configure_xorg:
   file:
