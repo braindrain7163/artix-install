@@ -16,19 +16,6 @@ import time  # Import the time module
 def execute_shell(commands, sudo=False, retries=3, delay=5):
     for command in commands:
         attempt = 0
-        skip_command = False
-
-        # Check if the command is a symlink creation and the target already exists
-        if command.startswith("ln -s") or command.startswith("sudo ln -s"):
-            parts = command.split()
-            if len(parts) >= 4:  # Ensure command has enough parts to extract target
-                target_path = parts[-1]
-                if os.path.exists(target_path) or os.path.islink(target_path):
-                    logger.info(f"Skipping symlink creation; target already exists: {target_path}")
-                    skip_command = True
-
-        if skip_command:
-            continue
 
         while attempt < retries:
             try:
@@ -42,9 +29,17 @@ def execute_shell(commands, sudo=False, retries=3, delay=5):
                 logger.error(f"Error executing command: {command}")
                 if attempt == retries:
                     logger.error(f"Command failed after {retries} attempts: {command}")
-                    continue  # Do not raise; allow continuation
+                    user_input = input(f"Command failed after {retries} attempts: {command}. Do you want to continue? (yes/no): ")
+                    if user_input.lower() == "yes":
+                        logger.info("User chose to continue.")
+                        break
+                    else:
+                        logger.info("User chose to stop execution.")
+                        return
                 logger.info(f"Retrying ({attempt}/{retries}): {command}")
                 time.sleep(delay)  # Add a delay before retrying
+
+
 
 def execute_python(script, *args, sudo=False):
     """
