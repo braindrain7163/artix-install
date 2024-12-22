@@ -72,14 +72,14 @@ pipewire-jack:
     packages:
       command: "sudo pacman -S {package} --needed --noconfirm"
       package:
-        - "world/pipewire-alsa"
+        - "world/pipewire-jack"
     path_init: true
     run_file:
       content: |
         #!/bin/sh
-        exec /usr/bin/pipewire-alsa
+        exec /usr/bin/pipewire-jack
     log_file:
       content: |
         #!/bin/sh
-        exec svlogd -tt /var/log/pipewire-alsa
+        exec svlogd -tt /var/log/pipewire-jack
     service_init: true
