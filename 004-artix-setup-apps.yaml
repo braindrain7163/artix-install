@@ -7,7 +7,6 @@ other_apps:
       - world/spectacle
       - galaxy/firefox
       - world/partitionmanager
-      - galaxy/firefox
       - galaxy/signal-desktop
       - galaxy/telegram-desktop
       - extra/bash-language-server
@@ -16,16 +15,11 @@ other_apps:
       - extra/nextcloud-client
       - extra/discord
       - extra/jupyterlab
-      - extra/openrazer-daemon
-      - extra/openrazer-driver-dkms
-      - extra/python-openrazer
       - world/gwenview
       - world/exfatprogs
-      - world/gvfs
       - extra/rapid-photo-downloader
       - world/python-openpyxl
       - world/python-pandas
-      - world/spice-vdagent
 
     command: 'yay -S {package} --needed --noconfirm'
     package:
@@ -38,3 +32,39 @@ other_apps:
       - sublime-text-4
       - xerox-docucentre-driver
       - brother-dcpl2540dw-cups
+
+openrazer:
+  setup_service:
+    packages:
+      command: "sudo pacman -S {package} --needed --noconfirm"
+      package:
+        - "extra/openrazer-daemon"
+        - "extra/openrazer-driver-dkms"
+        - "extra/python-openrazer"
+    path_init: true
+    run_file:
+      content: |
+        #!/bin/sh
+        exec /usr/bin/openrazer-daemon
+    log_file:
+      content: |
+        #!/bin/sh
+        exec svlogd -tt /var/log/openrazer
+    service_init: true
+
+gvfs:
+  setup_service:
+    packages:
+      command: "sudo pacman -S {package} --needed --noconfirm"
+      package:
+        - "world/gvfs"
+    path_init: true
+    run_file:
+      content: |
+        #!/bin/sh
+        exec /usr/lib/gvfs/gvfsd
+    log_file:
+      content: |
+        #!/bin/sh
+        exec svlogd -tt /var/log/gvfs
+    service_init: true
