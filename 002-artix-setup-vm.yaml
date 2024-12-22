@@ -1,16 +1,46 @@
-setup_spice_guest:
-  packages:
-    command: "sudo pacman -S {package} --needed --noconfirm"
-    package:
-      - "world/spice-vdagent"
-      - "world/spice-vdagent-runit"
-      - "world/spice-protocol"
-      # - "world/xf86-video-qxl"
-      - "world/xorg-xrandr"
-enable_services:
-  shell:
-    - "sudo ln -sf /etc/runit/sv/spice-vdagentd /run/runit/service/"
-    - "sudo sv start spice-vdagentd"
+service_paths:
+  service_path: "/run/runit/service/"
+  sv_path: "/etc/runit/sv/"
+
+spice-vdagent:
+  setup_service:
+    packages:
+      command: "sudo pacman -S {package} --needed --noconfirm"
+      package:
+        - "world/spice-vdagent"
+        - "world/spice-vdagent-runit"
+        - "world/spice-protocol"
+        - "world/xorg-xrandr"
+    path_init: true
+    run_file:
+      content: |
+        #!/bin/sh
+        exec /usr/bin/spice-vdagentd
+    log_file:
+      content: |
+        #!/bin/sh
+        exec svlogd -tt /var/log/spice-vdagentd
+    service_init: true
+
+pipewire:
+  setup_service:
+    packages:
+      command: "sudo pacman -S {package} --needed --noconfirm"
+      package:
+        - "world/pipewire"
+        - "world/pipewire-alsa"
+        - "world/pipewire-pulse"
+    path_init: true
+    run_file:
+      content: |
+        #!/bin/sh
+        exec /usr/bin/pipewire
+    log_file:
+      content: |
+        #!/bin/sh
+        exec svlogd -tt /var/log/pipewire
+    service_init: true
+
 configure_xorg:
   file:
     create: true
@@ -20,41 +50,3 @@ configure_xorg:
           Identifier "QXL"
           Driver "qxl"
       EndSection
-optional_audio:
-  packages:
-    command: "sudo pacman -S {package} --needed --noconfirm"
-    package:
-      - "world/alsa-utils"
-      - "world/pipewire"
-      - "world/pipewire-alsa"
-      - "world/pipewire-pulse"
-configure_services:
-  file:
-    create: true
-    name: '/etc/sv/pipewire/run'
-    content: |
-      #!/bin/sh
-      exec /usr/bin/pipewire
-  file:
-    create: true
-    name: "/etc/sv/pipewire-pulse/run"
-    content: |
-      #!/bin/sh
-      exec /usr/bin/pipewire-pulse
-  file:
-    create: true
-    name: "/etc/sv/wireplumber/run"
-    content: |
-      #!/bin/sh
-      exec /usr/bin/wireplumber
-enable_services:
-  shell:
-    - "sudo chmod +x /etc/sv/pipewire/run"
-    - "sudo chmod +x /etc/sv/pipewire-pulse/run"
-    - "sudo chmod +x /etc/sv/wireplumber/run"
-    - "sudo ln -sf /etc/sv/pipewire /run/runit/service/"
-    - "sudo ln -sf /etc/sv/pipewire-pulse /run/runit/service/"
-    - "sudo ln -sf /etc/sv/wireplumber /run/runit/service/"
-    - "sudo sv start pipewire"
-    - "sudo sv start pipewire-pulse"
-    - "sudo sv start wireplumber"
