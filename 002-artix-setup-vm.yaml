@@ -28,8 +28,6 @@ pipewire:
       command: "sudo pacman -S {package} --needed --noconfirm"
       package:
         - "world/pipewire"
-        - "world/pipewire-alsa"
-        - "world/pipewire-pulse"
     path_init: true
     run_file:
       content: |
@@ -41,6 +39,40 @@ pipewire:
         exec svlogd -tt /var/log/pipewire
     service_init: true
 
+pipewire-pulse:
+  setup_service:
+    packages:
+      command: "sudo pacman -S {package} --needed --noconfirm"
+      package:
+        - "world/pipewire-pulse"
+    path_init: true
+    run_file:
+      content: |
+        #!/bin/sh
+        exec /usr/bin/pipewire-pulse
+    log_file:
+      content: |
+        #!/bin/sh
+        exec svlogd -tt /var/log/pipewire-pulse
+    service_init: true
+    
+pipewire-alsa:
+  setup_service:
+    packages:
+      command: "sudo pacman -S {package} --needed --noconfirm"
+      package:
+        - "world/pipewire-alsa"
+    path_init: true
+    run_file:
+      content: |
+        #!/bin/sh
+        exec /usr/bin/pipewire-alsa
+    log_file:
+      content: |
+        #!/bin/sh
+        exec svlogd -tt /var/log/pipewire-alsa
+    service_init: true
+    
 configure_xorg:
   file:
     create: true
