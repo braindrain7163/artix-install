@@ -49,3 +49,40 @@ setup_envycontrol:
     - 'sudo mv /usr/lib/python3.12/site-packages/envycontrol.py /usr/lib/python3.12/site-packages/envycontrol.py.bak'  # Backup the original file
     - 'sudo cp ~/Downloads/envycontrol.py /usr/lib/python3.12/site-packages/envycontrol.py'
     - 'sudo chmod +x /usr/lib/python3.12/site-packages/envycontrol.py'
+
+cups:
+  setup_service:
+    packages:
+      command: "sudo pacman -S {package} --needed --noconfirm"
+      package:
+        - "world/cups"
+        - "world/cups-runit"
+    path_init: true
+    run_file:
+      content: |
+        #!/bin/sh
+        exec /usr/bin/cupsd
+    log_file:
+      content: |
+        #!/bin/sh
+        exec svlogd -tt /var/log/cups
+    service_init: true
+
+bluez:
+  setup_service:
+    packages:
+      command: "sudo pacman -S {package} --needed --noconfirm"
+      package:
+        - "world/bluez"
+        - "world/bluez-runit"
+        - "world/bluez-utils"
+    path_init: true
+    run_file:
+      content: |
+        #!/bin/sh
+        exec /usr/lib/bluetooth/bluetoothd
+    log_file:
+      content: |
+        #!/bin/sh
+        exec svlogd -tt /var/log/bluetoothd
+    service_init: true
