@@ -44,26 +44,10 @@ pipewire:
       content: |
         #!/bin/sh
         exec /usr/bin/pipewire
+        exec /usr/bin/pipewire-pulse
+        exec /usr/bin/pipewire-media-session
     log_file:
       content: |
         #!/bin/sh
         exec svlogd -tt /var/log/pipewire
-    service_init: true
-
-pipewire-pulse:
-  setup_service:
-    packages:
-      command: "sudo pacman -S {package} --needed --noconfirm"
-      package:
-        - "world/pipewire-pulse"
-    path_init: true
-    run_file:
-      content: |
-        #!/bin/sh
-        exec /usr/bin/pipewire-pulse
-    log_file:
-      content: |
-        #!/bin/sh
-        exec svlogd -tt /var/log/pipewire-pulse
-    service_init: true
-    
+    service_init: true   
