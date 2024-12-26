@@ -198,18 +198,18 @@ EOF
     echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
 
     # connman-gtk
-    pacman -U https://omniverse.artixlinux.org/x86_64/connman-gtk-1.1.1-3-x86_64.pkg.tar.zst --noconfirm
-    pacman -S artix-keyring archlinux-keyring --noconfirm
-    pacman-key --populate artix
-    pacman-key --populate archlinux
-    pacman -S connman-runit --noconfirm
-    # ln -s /etc/runit/sv/connmand /run/runit/service/    
-    # ln -s /etc/runit/sv/connmand /etc/runit/runsvdir/default
+    # pacman -U https://omniverse.artixlinux.org/x86_64/connman-gtk-1.1.1-3-x86_64.pkg.tar.zst --noconfirm
+    # pacman -S artix-keyring archlinux-keyring --noconfirm
+    # pacman-key --populate artix
+    # pacman-key --populate archlinux
+    # pacman -S connman-runit --noconfirm
+    # # ln -s /etc/runit/sv/connmand /run/runit/service/    
+    # # ln -s /etc/runit/sv/connmand /etc/runit/runsvdir/default
 
     #network setup
     pacman -S networkmanager networkmanager-runit network-manager-applet --noconfirm
-    pacman -S dhcpcd --noconfirm
-    # ln -s /etc/runit/sv/NetworkManager /run/runit/service/
+    # pacman -S dhcpcd --noconfirm
+    ln -s /etc/runit/sv/NetworkManager /run/runit/service/
 
     #basic system
     sudo pacman -S bluez bluez-runit blues-utils cups cups-runit xdg-utils xdg-user-dirs python --noconfirm
@@ -229,11 +229,9 @@ fi
 # Post-installation instructions
 echo "1. to log back in:"
 echo "   artix-chroot $MOUNT_POINT /bin/bash"
-echo "2. EDITOR=nano visudo"
-echo "3. Find Wheel Group"
-echo "4. Uncomment %wheel ALL=(All) ALL"
+echo "2. run sudo ln -s /etc/runit/sv/NetworkManager /run/runit/service/"
 echo "7. Reboot the system."
 
-#https://github.com/Zerogaku/Artix-install-guide
+echo https://github.com/Zerogaku/Artix-install-guide
 
 echo "Installation complete. Reboot into your new system when ready and check https://github.com/Zerogaku/Artix-install-guide for some more hints"
