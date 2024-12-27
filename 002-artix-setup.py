@@ -6,14 +6,26 @@ import shutil
 import tempfile
 from datetime import datetime
 import logging
+import argparse  # Import argparse for command-line arguments
+
+# Set up argument parser
+parser = argparse.ArgumentParser(
+    description="Artix setup script. This script requires a YAML configuration file to execute the specified tasks.",
+    epilog="Use the --debug flag to enable verbose logging for debugging purposes."
+)
+parser.add_argument("yaml_file", help="Path to the YAML configuration file")
+parser.add_argument("--debug", action="store_true", help="Enable verbose logging")
+args = parser.parse_args()
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging_level = logging.DEBUG if args.debug else logging.INFO
+logging.basicConfig(level=logging_level)
 logger = logging.getLogger(__name__)
 
 import time  # Import the time module
 
 def execute_shell(commands, sudo=False, retries=3, delay=5):
+    logger.debug(f"Starting execute_shell with commands: {commands}, sudo: {sudo}, retries: {retries}, delay: {delay}")
     for command in commands:
         attempt = 0
 
@@ -46,6 +58,7 @@ def execute_python(script, *args, sudo=False):
     :param args: Arguments to pass to the script.
     :param sudo: Whether to run the command with sudo.
     """
+    logger.debug(f"Starting execute_python with script: {script}, args: {args}, sudo: {sudo}")
     command = "python3"
     if sudo:
         command = f"sudo {command}"
@@ -58,11 +71,13 @@ def execute_python(script, *args, sudo=False):
         logger.error(e)
 
 def install_packages(packages, command_template, sudo=False):
+    logger.debug(f"Starting install_packages with packages: {packages}, command_template: {command_template}, sudo: {sudo}")
     for package in packages:
         command = command_template.format(package=package)
         execute_shell([command], sudo)
 
 def write_to_file(filepath, content, sudo=False, backup=False):
+    logger.debug(f"Starting write_to_file with filepath: {filepath}, sudo: {sudo}, backup: {backup}")
     try:
         logger.info(f"Preparing to write to file: {filepath}")
         dir_path = os.path.dirname(filepath)
@@ -106,6 +121,7 @@ def setup_service(service_name, service_config, paths):
     :param service_config: Dictionary containing the service configuration.
     :param paths: Dictionary containing path placeholders (e.g., service_path, sv_path).
     """
+    logger.debug(f"Starting setup_service with service_name: {service_name}, service_config: {service_config}, paths: {paths}")
 
     placeholders = {
         "service_path": paths.get("service_path", "/run/runit/service/"),
@@ -156,6 +172,7 @@ def parse_and_execute(yaml_content):
     """
     Parses the YAML content and executes tasks based on its structure.
     """
+    logger.debug(f"Starting parse_and_execute with yaml_content: {yaml_content}")
     for task_name, task_config in yaml_content.items():
         logger.info(f"Processing: {task_name}")
 
@@ -199,11 +216,13 @@ def parse_and_execute(yaml_content):
         logger.info(f"Finished: {task_name}\n")
 
 if __name__ == "__main__":
-    # Default YAML file path based on the script name
-    default_yaml_file = os.path.splitext(os.path.basename(__file__))[0] + ".yaml"
+    # Ensure a YAML file is provided
+    if not args.yaml_file:
+        logger.error("No YAML file provided. Use --help for usage information.")
+        sys.exit(1)
 
-    # Check if a parameter was passed; otherwise, use the default YAML file
-    yaml_file_path = sys.argv[1] if len(sys.argv) > 1 else default_yaml_file
+    # Parse and execute the provided YAML file
+    yaml_file_path = args.yaml_file
 
     try:
         with open(yaml_file_path, "r") as file:
