@@ -4,10 +4,43 @@ kde_plasma:
     command: 'sudo pacman -S {package} --needed --noconfirm'
     package:
       # Base KDE Plasma packages
-      - world/plasma
-      #- world/kde-applications
+      # - world/plasma
+      # - world/kde-applications
+      - world/plasma-meta
       - world/sddm
       - world/xorg
+      
+      # Essential KDE Applications
+      - world/kate
+      - world/dolphin
+      - world/konsole
+      - world/ark
+      - world/okular
+      
+      # System Utilities
+      - world/partitionmanager
+      - world/kinfocenter
+      - world/plasma-systemmonitor
+      - world/powerdevil
+      
+      # Networking
+      - world/plasma-nm
+      - world/kdeconnect
+      
+      # Multimedia
+      - world/elisa
+      - world/dragon
+      - world/gwenview
+      - world/spectacle
+      
+      # Development Tools
+      - world/kdevelop
+      
+      # Productivity and Extras
+      - world/korganizer
+      - world/kmymoney
+
+      
   setup_service:
     shell:
         # Enable SDDM (Display Manager) using Runit
