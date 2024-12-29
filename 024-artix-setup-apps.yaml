@@ -19,6 +19,7 @@ other_apps:
       - extra/rapid-photo-downloader
       - world/python-openpyxl
       - world/python-pandas
+      - world/remmina
 
     command: 'yay -S {package} --needed --noconfirm'
     package:
