@@ -6,7 +6,6 @@ other_apps:
       - multilib/steam
       - world/spectacle
       - galaxy/firefox
-      - world/partitionmanager
       - galaxy/signal-desktop
       - galaxy/telegram-desktop
       - extra/bash-language-server
