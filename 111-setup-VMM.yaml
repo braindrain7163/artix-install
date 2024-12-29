@@ -12,7 +12,9 @@ setup_spice:
       - 'world/virt-viewer'
       - 'world/dnsmasq'
       - 'world/bridge-utils'
-
+shell:
+    - 'sudo mkdir -p /var/log/libvirt'  # Ensure log directory exists
+    
 libvirtd:
   setup_service:
     packages:
@@ -33,7 +35,6 @@ libvirtd:
 
 shell:
     - 'sudo usermod -aG libvirt $USER'  # Add user to libvirt group
-    - 'sudo mkdir -p /var/log/libvirt'  # Ensure log directory exists
       
 create_config:
   sudo: true
@@ -44,5 +45,4 @@ create_config:
     spice_tls = 0
 
 shell:
-  - 'sudo sv restart libvirtd'  # Restart libvirtd service to apply logging
-  
+  - 'sudo sv restart libvirtd'  # Restart libvirtd service to apply logging  
