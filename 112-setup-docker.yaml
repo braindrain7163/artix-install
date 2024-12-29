@@ -6,15 +6,14 @@ setup_docker:
       - 'world/docker'
       - 'extra/docker-compose'
       - 'world/docker-runit'
-      - 'nt'
     shell:
       - 'sudo mkdir -p /var/log/docker'  # Ensure log directory exists
       - 'sudo ln -s /etc/runit/sv/docker /run/runit/service'  # Link Docker service
+      - 'sudo mkdir -p /etc/docker'  # Create Docker configuration directory
       - 'sudo sv start docker'  # Start Docker service
       - 'sudo usermod -aG docker $USER'  # Add user to Docker group
       - 'docker --version >> /var/log/docker/setup.log 2>&1'  # Log Docker version
       - 'docker run hello-world >> /var/log/docker/setup.log 2>&1'  # Log hello-world test
-      - 'sudo mkdir -p /etc/docker'  # Create Docker configuration directory
     create:
       sudo: true
       file: '/etc/docker/daemon.json'
