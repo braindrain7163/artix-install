@@ -20,6 +20,7 @@ other_apps:
       - world/python-openpyxl
       - world/python-pandas
       - world/remmina
+      - world/filezilla
 
     command: 'yay -S {package} --needed --noconfirm'
     package:
