@@ -52,6 +52,7 @@ else
 fi
 
 # Install PyYAML
+sudo pacman -S world/python --noconfirm
 sudo pacman -S world/python-yaml --noconfirm
 
 #fix grub
