@@ -21,7 +21,6 @@ other_apps:
       - world/python-pandas
       - world/remmina
       - world/filezilla
-
     command: 'yay -S {package} --needed --noconfirm'
     package:
       - onlyoffice-bin
