@@ -22,4 +22,4 @@ required_packages:
       - 'world/git'
       - 'world/wget'
       - 'world/htop'
-      - 'extra/libva'
+      # - 'extra/libva'
