@@ -1,7 +1,7 @@
 #apps
 other_apps:
   packages:
-    command: 'sudo pacman -S {package} --needed --noconfirm'
+    command: 'yay -S {package} --needed --noconfirm'
     package:
       - multilib/steam
       - world/spectacle
@@ -21,8 +21,6 @@ other_apps:
       - world/python-pandas
       - world/remmina
       - world/filezilla
-    command: 'yay -S {package} --needed --noconfirm'
-    package:
       - onlyoffice-bin
       - microsoft-edge-stable-bin
       - brave-bin
