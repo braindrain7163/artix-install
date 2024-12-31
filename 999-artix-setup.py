@@ -168,7 +168,7 @@ def setup_service(service_name, service_config, paths):
 
     logger.info(f"Service {service_name} setup completed.")
 
-def parse_and_execute(yaml_content):
+def parse_and_execute(yaml_content, debug=False):
     """
     Parses the YAML content and executes tasks based on its structure.
     """
