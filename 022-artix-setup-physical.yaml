@@ -52,7 +52,7 @@ setup_envycontrol:
     - 'sudo cp ~/Downloads/envycontrol.py /usr/lib/python3.12/site-packages/envycontrol.py'
     - 'sudo chmod +x /usr/lib/python3.12/site-packages/envycontrol.py'
 
-cups:
+cupsd:
   setup_service:
     packages:
       command: "sudo pacman -S {package} --needed --noconfirm"
@@ -67,10 +67,10 @@ cups:
     log_file:
       content: |
         #!/bin/sh
-        exec svlogd -tt /var/log/cups
+        exec svlogd -tt /var/log/cupsd
     service_init: true
 
-bluez:
+bluetoothd:
   setup_service:
     packages:
       command: "sudo pacman -S {package} --needed --noconfirm"
