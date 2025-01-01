@@ -16,11 +16,14 @@ other_apps:
       - extra/jupyterlab
       - world/gwenview
       - world/exfatprogs
-      - extra/rapid-photo-downloader
       - world/python-openpyxl
       - world/python-pandas
       - world/remmina
       - world/filezilla
+      - extra/rapid-photo-downloader
+      - world/krita
+      - world/gimp
+      - world/darktable
       - onlyoffice-bin
       - microsoft-edge-stable-bin
       - brave-bin
