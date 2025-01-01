@@ -1,7 +1,7 @@
 # KDE Plasma with PipeWire Setup
 kde_plasma:
   packages:
-    command: 'sudo pacman -S {package} --needed --noconfirm'
+    command: 'yay -S {package} --needed --noconfirm'
     package:
       # Base KDE Plasma packages
       # - world/plasma
@@ -22,6 +22,10 @@ kde_plasma:
       - world/kinfocenter
       - world/plasma-systemmonitor
       - world/powerdevil
+      - world/tlp
+      - world/tlp-runit
+      - world/tlp-rdw
+      - tlpui
       
       # Networking
       - world/plasma-nm
