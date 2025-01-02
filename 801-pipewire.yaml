@@ -2,22 +2,23 @@
 # Packages for VMs and Physical Machines
 required_packages:
   packages:
-    command: 'sudo pacman -S {package} --needed --noconfirm'
+    command: 'yay -S {package} --needed --noconfirm'
     package:
       - 'world/pipewire'
+      - 'world/wireplumber'
       - 'world/pipewire-alsa'
       - 'world/pipewire-pulse'
       - 'world/pipewire-jack'      
       - 'world/gst-plugin-pipewire'
 
 service_paths:
-  service_path: "/run/runit/service/"
+  service_path: "/etc/runit/runsvdir/default/"
   sv_path: "/etc/runit/sv/"
 
 pipewire:
   setup_service:
     packages:
-      command: "sudo pacman -S {package} --needed --noconfirm"
+      command: "yay -S {package} --needed --noconfirm"
       package:
         - "world/pipewire"
     path_init: true
@@ -25,10 +26,42 @@ pipewire:
       content: |
         #!/bin/sh
         exec /usr/bin/pipewire
-        exec /usr/bin/pipewire-pulse
-        exec /usr/bin/pipewire-media-session
     log_file:
       content: |
         #!/bin/sh
         exec svlogd -tt /var/log/pipewire
     service_init: true   
+
+pipewire-pulse:
+  setup_service:
+    packages:
+      command: "yay -S {package} --needed --noconfirm"
+      package:
+        - "world/pipewire-pulse"
+    path_init: true
+    run_file:
+      content: |
+        #!/bin/sh
+        exec /usr/bin/pipewire-pulse
+    log_file:
+      content: |
+        #!/bin/sh
+        exec svlogd -tt /var/log/pipewire-pulse
+    service_init: true  
+
+  wireplumber:
+  setup_service:
+    packages:
+      command: "yay -S {package} --needed --noconfirm"
+      package:
+        - "world/wireplumber"
+    path_init: true
+    run_file:
+      content: |
+        #!/bin/sh
+        exec /usr/bin/wireplumber
+    log_file:
+      content: |
+        #!/bin/sh
+        exec svlogd -tt /var/log/wireplumber
+    service_init: true  
