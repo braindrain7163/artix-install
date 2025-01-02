@@ -43,12 +43,12 @@ kde_plasma:
         - 'sudo ln -s /etc/runit/sv/sddm /run/runit/service'
         - 'sudo sv start sddm'
         # Enable PipeWire and related services using Runit
-        - 'sudo ln -s /etc/runit/sv/pipewire /run/runit/service'
-        - 'sudo ln -s /etc/runit/sv/pipewire-pulse /run/runit/service'
-        - 'sudo ln -s /etc/runit/sv/wireplumber /run/runit/service'
-        - 'sudo sv start pipewire'
-        - 'sudo sv start pipewire-pulse'
-        - 'sudo sv start wireplumber'
+        # - 'sudo ln -s /etc/runit/sv/pipewire /run/runit/service'
+        # - 'sudo ln -s /etc/runit/sv/pipewire-pulse /run/runit/service'
+        # - 'sudo ln -s /etc/runit/sv/wireplumber /run/runit/service'
+        # - 'sudo sv start pipewire'
+        # - 'sudo sv start pipewire-pulse'
+        # - 'sudo sv start wireplumber'
   configuration:
     shell:
         # Configure KDE Plasma as the default session
