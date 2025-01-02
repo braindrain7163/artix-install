@@ -3,7 +3,7 @@ other_apps:
   packages:
     command: 'yay -S {package} --needed --noconfirm'
     package:
-      - multilib/steam
+      # - multilib/steam
       - world/spectacle
       - galaxy/firefox
       - galaxy/signal-desktop
