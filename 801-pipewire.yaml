@@ -1,4 +1,4 @@
-#install required packages
+# Install required packages
 # Packages for VMs and Physical Machines
 required_packages:
   packages:
@@ -8,7 +8,7 @@ required_packages:
       - 'world/wireplumber'
       - 'world/pipewire-alsa'
       - 'world/pipewire-pulse'
-      - 'world/pipewire-jack'      
+      - 'world/pipewire-jack'
       - 'world/gst-plugin-pipewire'
 
 service_paths:
@@ -30,7 +30,7 @@ pipewire:
       content: |
         #!/bin/sh
         exec svlogd -tt /var/log/pipewire
-    service_init: true   
+    service_init: true
 
 pipewire-pulse:
   setup_service:
@@ -47,9 +47,9 @@ pipewire-pulse:
       content: |
         #!/bin/sh
         exec svlogd -tt /var/log/pipewire-pulse
-    service_init: true  
+    service_init: true
 
-  wireplumber:
+wireplumber:
   setup_service:
     packages:
       command: "yay -S {package} --needed --noconfirm"
@@ -64,4 +64,4 @@ pipewire-pulse:
       content: |
         #!/bin/sh
         exec svlogd -tt /var/log/wireplumber
-    service_init: true  
+    service_init: true
