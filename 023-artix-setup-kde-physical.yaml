@@ -9,15 +9,12 @@ kde_plasma:
       # - world/kde-applications
       - world/plasma-meta
       - world/sddm
-      
-      
       # Essential KDE Applications
       - world/kate
       - world/dolphin
       - world/konsole
       - world/ark
       - world/okular
-      
       # System Utilities
       - world/partitionmanager
       - world/kinfocenter
@@ -27,25 +24,19 @@ kde_plasma:
       - world/tlp-runit
       - world/tlp-rdw
       - tlpui
-      
       # Networking
       - world/plasma-nm
       - world/kdeconnect
-      
       # Multimedia
       - world/elisa
       - world/dragon
       - world/gwenview
       - world/spectacle
-      
       # Development Tools
       - world/kdevelop
-      
       # Productivity and Extras
       - world/korganizer
       - world/kmymoney
-
-      
   setup_service:
     shell:
         # Enable SDDM (Display Manager) using Runit
@@ -58,12 +49,10 @@ kde_plasma:
         # - 'sudo sv start pipewire'
         # - 'sudo sv start pipewire-pulse'
         # - 'sudo sv start wireplumber'
-
   configuration:
     shell:
         # Configure KDE Plasma as the default session
         - 'echo "exec startplasma-x11" > ~/.xinitrc'
-
     file:
         # Create a PipeWire configuration file if needed (optional)
         create: true
