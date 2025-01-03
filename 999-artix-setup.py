@@ -170,17 +170,22 @@ def setup_service(service_name, service_config, paths):
 
 def parse_and_execute(yaml_content, debug=False):
     """
-    Parses the YAML content and executes tasks based on its structure.
+    Parses the YAML content and executes tasks based on its structure with detailed debugging.
     """
     logger.debug(f"Starting parse_and_execute with yaml_content: {yaml_content}")
     for task_name, task_config in yaml_content.items():
-        logger.info(f"Processing: {task_name}")
+        logger.info(f"Processing task: {task_name}")
 
         if task_name == "service_paths":
-            continue  # Skip the paths configuration
+            logger.debug(f"Skipping 'service_paths' configuration.")
+            continue
+
+        # Debugging full task structure
+        logger.debug(f"Full task configuration for {task_name}: {task_config}")
 
         # Install Packages
         if "packages" in task_config:
+            logger.info(f"Installing packages for task: {task_name}")
             install_packages(
                 task_config["packages"].get("package", []),
                 task_config["packages"].get("command", "sudo pacman -S {package} --needed --noconfirm")
@@ -188,16 +193,21 @@ def parse_and_execute(yaml_content, debug=False):
 
         # Setup Service
         if "setup_service" in task_config:
+            logger.info(f"Setting up service for task: {task_name}")
             service_paths = yaml_content.get("service_paths", {})
             service_name = task_config.get("service_name", task_name)
             setup_service(service_name, task_config["setup_service"], service_paths)
 
         # Execute General Shell Commands
         if "shell" in task_config:
+            logger.info(f"Executing shell commands for task: {task_name}")
+            logger.debug(f"Shell commands: {task_config['shell']}")
             execute_shell(task_config["shell"])
 
         # Execute Python Scripts
         if "python" in task_config:
+            logger.info(f"Executing Python script for task: {task_name}")
+            logger.debug(f"Python config: {task_config['python']}")
             if isinstance(task_config["python"], dict):
                 execute_python(
                     task_config["python"].get("script", ""),
@@ -206,6 +216,8 @@ def parse_and_execute(yaml_content, debug=False):
 
         # Handle File Creation
         if "file" in task_config:
+            logger.info(f"Processing file creation for task: {task_name}")
+            logger.debug(f"File config content: {task_config['file']}")
             file_config = task_config["file"]
             if isinstance(file_config, dict):
                 if "name" in file_config and "content" in file_config:
@@ -217,11 +229,12 @@ def parse_and_execute(yaml_content, debug=False):
                         backup=True
                     )
                 else:
-                    logger.error("File entry is missing 'name' or 'content'. Skipping.")
+                    logger.error(f"File entry is missing 'name' or 'content'. Contents: {file_config}")
             else:
-                logger.error(f"Invalid structure under 'file' key in task: {task_name}.")
+                logger.error(f"Invalid structure under 'file' key in task: {task_name}. Contents: {task_config['file']}")
 
-        logger.info(f"Finished: {task_name}\n")
+        logger.info(f"Finished task: {task_name}\n")
+
 
 if __name__ == "__main__":
     # Ensure a YAML file is provided
