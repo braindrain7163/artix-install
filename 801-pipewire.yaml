@@ -12,58 +12,31 @@ required_packages:
       - 'world/gst-plugin-pipewire'
       - 'world/alsa-utils'
       - 'world/libcamera'
+configuration:
+  file:
+      # Create a PipeWire configuration file if needed (optional)
+      create: true
+      name: '~/.xinitrc'
+      content: |
+          #!/bin/sh
 
-service_paths:
-  service_path: "/etc/runit/runsvdir/default/"
-  sv_path: "/etc/runit/sv/"
-
-pipewire:
-  setup_service:
-    packages:
-      command: "yay -S {package} --needed --noconfirm"
-      package:
-        - "world/pipewire"
-    path_init: true
-    run_file:
+          /usr/bin/pipewire &
+          /usr/bin/pipewire-pulse &
+          /usr/bin/pipewire-media-session &
+          #/usr/bin/wireplumber &
+          exec dbus-launch --exit-with-session startplasma-x11
+  shell:
+      - 'chmod +x ~/.xinitrc'
+  file:
+      # Create a PipeWire configuration file if needed (optional)
+      create: true
+      name: '/etc/pipewire/pipewire.conf'
       content: |
-        #!/bin/sh
-        exec /usr/bin/pipewire
-    log_file:
-      content: |
-        #!/bin/sh
-        exec svlogd -tt /var/log/pipewire
-    service_init: true
-
-pipewire-pulse:
-  setup_service:
-    packages:
-      command: "yay -S {package} --needed --noconfirm"
-      package:
-        - "world/pipewire-pulse"
-    path_init: true
-    run_file:
-      content: |
-        #!/bin/sh
-        exec /usr/bin/pipewire-pulse
-    log_file:
-      content: |
-        #!/bin/sh
-        exec svlogd -tt /var/log/pipewire-pulse
-    service_init: true
-
-wireplumber:
-  setup_service:
-    packages:
-      command: "yay -S {package} --needed --noconfirm"
-      package:
-        - "world/wireplumber"
-    path_init: true
-    run_file:
-      content: |
-        #!/bin/sh
-        exec /usr/bin/wireplumber
-    log_file:
-      content: |
-        #!/bin/sh
-        exec svlogd -tt /var/log/wireplumber
-    service_init: true
+          # Example PipeWire configuration
+          context.properties = {
+              default.clock.rate          = 48000
+              default.clock.allowed-rates = [ 48000 ]
+              default.clock.quantum       = 1024
+              default.clock.min-quantum   = 32
+              default.clock.max-quantum   = 8192
+          }
