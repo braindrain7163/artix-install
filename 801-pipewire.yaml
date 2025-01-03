@@ -9,6 +9,7 @@ required_packages:
       - 'world/pipewire-alsa'
       - 'world/pipewire-pulse'
       - 'world/pipewire-jack'
+      - 'world/pipewire-media-session'
       - 'world/gst-plugin-pipewire'
       - 'world/alsa-utils'
       - 'world/libcamera'
