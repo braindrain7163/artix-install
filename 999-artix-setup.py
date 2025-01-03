@@ -224,31 +224,43 @@ def parse_and_execute(yaml_content, debug=False):
                     *task_config["python"].get("parameters", [])
                 )
 
-        # Handle File Creation using a list of files
+        # Handle Single File Creation
+        if "file" in task_config:
+            logger.info(f"Processing single file creation for task: {task_name}")
+            file_config = task_config["file"]
+            if isinstance(file_config, dict) and "name" in file_config and "content" in file_config:
+                file_path = os.path.expanduser(file_config['name'])
+                logger.info(f"Attempting to write single file: {file_path}")
+                try:
+                    write_to_file(
+                        file_path,
+                        file_config["content"],
+                        sudo=True,
+                        backup=True
+                    )
+                except Exception as e:
+                    logger.error(f"Failed to create file {file_path}: {e}")
+
+        # Handle Multiple Files Creation using a list
         if "files" in task_config:
             logger.info(f"Processing multiple file creations for task: {task_name}")
             for file_config in task_config["files"]:
                 if isinstance(file_config, dict) and "name" in file_config and "content" in file_config:
                     file_path = os.path.expanduser(file_config['name'])
                     logger.info(f"Attempting to write file: {file_path}")
-                    if not os.path.exists(file_path):
-                        logger.debug(f"File {file_path} does not exist. Creating it now.")
-                        try:
-                            write_to_file(
-                                file_path,
-                                file_config["content"],
-                                sudo=True,
-                                backup=True
-                            )
-                        except Exception as e:
-                            logger.error(f"Failed to create file {file_path}: {e}")
-                    else:
-                        logger.debug(f"File {file_path} already exists. Skipping creation.")
+                    try:
+                        write_to_file(
+                            file_path,
+                            file_config["content"],
+                            sudo=True,
+                            backup=True
+                        )
+                    except Exception as e:
+                        logger.error(f"Failed to create file {file_path}: {e}")
                 else:
                     logger.error(f"Invalid file structure under 'files' key in task: {task_name}. Contents: {file_config}")
 
         logger.info(f"Finished task: {task_name}\n")
-
 
 if __name__ == "__main__":
     # Ensure a YAML file is provided
