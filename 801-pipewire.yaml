@@ -13,42 +13,42 @@ required_packages:
       - 'world/gst-plugin-pipewire'
       - 'world/alsa-utils'
       - 'world/libcamera'
+
+# Create multiple files with distinct keys to avoid overwriting
 configuration:
-  file:
-      # Create a PipeWire configuration file if needed (optional)
-    create: true
-    name: '~/.xinitrc'
-    content: |
-      #!/bin/sh
+  files:
+    - name: '~/.xinitrc'
+      create: true
+      content: |
+        #!/bin/sh
+        /usr/bin/pipewire &
+        /usr/bin/pipewire-pulse &
+        # /usr/bin/pipewire-media-session &
+        /usr/bin/wireplumber &
+        exec dbus-launch --exit-with-session startplasma-x11
 
-      /usr/bin/pipewire &
-      /usr/bin/pipewire-pulse &
-      # /usr/bin/pipewire-media-session &
-      /usr/bin/wireplumber &
-      exec dbus-launch --exit-with-session startplasma-x11
-  file:
-    # Create a PipeWire configuration file if needed (optional)
-    create: true
-    name: '~/.xprofile'
-    content: |
-      #!/bin/sh
+    - name: '~/.xprofile'
+      create: true
+      content: |
+        #!/bin/sh
+        /usr/bin/pipewire &
+        /usr/bin/pipewire-pulse &
+        # /usr/bin/pipewire-media-session &
+        /usr/bin/wireplumber &
 
-      /usr/bin/pipewire &
-      /usr/bin/pipewire-pulse &
-      # /usr/bin/pipewire-media-session &
-      /usr/bin/wireplumber &
-  shell:
-    - 'chmod +x ~/.xinitrc'
-  file:
-    # Create a PipeWire configuration file if needed (optional)
-    create: true
-    name: '/etc/pipewire/pipewire.conf'
-    content: |
-      # Example PipeWire configuration
-      context.properties = {
-        default.clock.rate          = 48000
-        default.clock.allowed-rates = [ 48000 ]
-        default.clock.quantum       = 1024
-        default.clock.min-quantum   = 32
-        default.clock.max-quantum   = 8192
-      }
+    - name: '/etc/pipewire/pipewire.conf'
+      create: true
+      content: |
+        # Example PipeWire configuration
+        context.properties = {
+          default.clock.rate          = 48000
+          default.clock.allowed-rates = [ 48000 ]
+          default.clock.quantum       = 1024
+          default.clock.min-quantum   = 32
+          default.clock.max-quantum   = 8192
+        }
+
+# Ensure permissions are correctly modified
+shell:
+  - 'chmod +x ~/.xinitrc'
+  - 'chmod +x ~/.xprofile'
