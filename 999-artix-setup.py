@@ -202,7 +202,17 @@ def parse_and_execute(yaml_content, debug=False):
         if "shell" in task_config:
             logger.info(f"Executing shell commands for task: {task_name}")
             logger.debug(f"Shell commands: {task_config['shell']}")
-            execute_shell(task_config["shell"])
+            for command in task_config["shell"]:
+                if "chmod +x" in command:
+                    file_to_check = os.path.expanduser(command.split()[-1])
+                    if not os.path.exists(file_to_check):
+                        logger.warning(f"File {file_to_check} does not exist. Creating it before running chmod.")
+                        try:
+                            with open(file_to_check, 'w') as temp_file:
+                                temp_file.write("# Created by the script")
+                        except Exception as e:
+                            logger.error(f"Failed to create file {file_to_check}: {e}")
+                execute_shell([command])
 
         # Execute Python Scripts
         if "python" in task_config:
@@ -221,19 +231,28 @@ def parse_and_execute(yaml_content, debug=False):
             file_config = task_config["file"]
             if isinstance(file_config, dict):
                 if "name" in file_config and "content" in file_config:
-                    logger.info(f"Attempting to write file: {file_config['name']}")
-                    write_to_file(
-                        file_config["name"],
-                        file_config["content"],
-                        sudo=True,
-                        backup=True
-                    )
+                    file_path = os.path.expanduser(file_config['name'])
+                    logger.info(f"Attempting to write file: {file_path}")
+                    if not os.path.exists(file_path):
+                        logger.debug(f"File {file_path} does not exist. Creating it now.")
+                        try:
+                            write_to_file(
+                                file_path,
+                                file_config["content"],
+                                sudo=True,
+                                backup=True
+                            )
+                        except Exception as e:
+                            logger.error(f"Failed to create file {file_path}: {e}")
+                    else:
+                        logger.debug(f"File {file_path} already exists. Skipping creation.")
                 else:
                     logger.error(f"File entry is missing 'name' or 'content'. Contents: {file_config}")
             else:
                 logger.error(f"Invalid structure under 'file' key in task: {task_name}. Contents: {task_config['file']}")
 
         logger.info(f"Finished task: {task_name}\n")
+
 
 
 if __name__ == "__main__":
