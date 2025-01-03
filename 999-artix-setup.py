@@ -204,14 +204,17 @@ def parse_and_execute(yaml_content, debug=False):
                     *task_config["python"].get("parameters", [])
                 )
 
-        # Handle File Creation
         if "file" in task_config:
-            write_to_file(
-                task_config["file"]["name"],
-                task_config["file"]["content"],
-                sudo=True,
-                backup=True
-            )
+            file_config = task_config["file"]
+            if isinstance(file_config, dict) and "name" in file_config and "content" in file_config:
+                write_to_file(
+                    file_config["name"],
+                    file_config["content"],
+                    sudo=True,
+                    backup=True
+                )
+            else:
+                logger.error("Invalid file structure in YAML. Skipping file creation.")
 
         logger.info(f"Finished: {task_name}\n")
 
