@@ -205,10 +205,10 @@ def parse_and_execute(yaml_content, debug=False):
                 )
 
         # Handle File Creation
-        if "create" in task_config:
+        if "file" in task_config:
             write_to_file(
-                task_config["create"]["file"],
-                task_config["create"]["content"],
+                task_config["file"]["name"],
+                task_config["file"]["content"],
                 sudo=True,
                 backup=True
             )
