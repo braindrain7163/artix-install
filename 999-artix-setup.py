@@ -224,13 +224,11 @@ def parse_and_execute(yaml_content, debug=False):
                     *task_config["python"].get("parameters", [])
                 )
 
-        # Handle File Creation
-        if "file" in task_config:
-            logger.info(f"Processing file creation for task: {task_name}")
-            logger.debug(f"File config content: {task_config['file']}")
-            file_config = task_config["file"]
-            if isinstance(file_config, dict):
-                if "name" in file_config and "content" in file_config:
+        # Handle File Creation using a list of files
+        if "files" in task_config:
+            logger.info(f"Processing multiple file creations for task: {task_name}")
+            for file_config in task_config["files"]:
+                if isinstance(file_config, dict) and "name" in file_config and "content" in file_config:
                     file_path = os.path.expanduser(file_config['name'])
                     logger.info(f"Attempting to write file: {file_path}")
                     if not os.path.exists(file_path):
@@ -247,12 +245,9 @@ def parse_and_execute(yaml_content, debug=False):
                     else:
                         logger.debug(f"File {file_path} already exists. Skipping creation.")
                 else:
-                    logger.error(f"File entry is missing 'name' or 'content'. Contents: {file_config}")
-            else:
-                logger.error(f"Invalid structure under 'file' key in task: {task_name}. Contents: {task_config['file']}")
+                    logger.error(f"Invalid file structure under 'files' key in task: {task_name}. Contents: {file_config}")
 
         logger.info(f"Finished task: {task_name}\n")
-
 
 
 if __name__ == "__main__":
