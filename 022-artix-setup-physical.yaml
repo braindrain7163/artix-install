@@ -6,10 +6,10 @@ pacman_conf:
   packages:
     command: 'yay -S {package} --needed --noconfirm'
     package:
-        - 'pacman-mirrors-helper-git'
-        - 'rankmirrors'
-        - 'extra/reflector'
-        - 'galaxy/artix-archlinux-support'
+      - 'pacman-mirrors-helper-git'
+      - 'rankmirrors'
+      - 'extra/reflector'
+      - 'galaxy/artix-archlinux-support'
   shell:
     - 'sudo reflector --verbose --country "Australia" --latest 10 --sort rate --protocol https --save /etc/pacman.d/mirrorlist-arch'
     - 'sudo pacman-key --populate archlinux'
