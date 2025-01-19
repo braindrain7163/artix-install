@@ -18,7 +18,7 @@ pacman_conf:
 #install required packages
 required_packages:
   packages:
-    command: 'sudo pacman -S {package} --needed --noconfirm'
+    command: 'yay -S {package} --needed --noconfirm'
     package:
       - 'world/xf86-video-intel'
       - 'world/nvidia'
@@ -60,7 +60,7 @@ setup_envycontrol:
 cupsd:
   setup_service:
     packages:
-      command: "sudo pacman -S {package} --needed --noconfirm"
+      command: "yay -S {package} --needed --noconfirm"
       package:
         - "world/cups"
         - "world/cups-runit"
@@ -78,7 +78,7 @@ cupsd:
 bluetoothd:
   setup_service:
     packages:
-      command: "sudo pacman -S {package} --needed --noconfirm"
+      command: "yay -S {package} --needed --noconfirm"
       package:
         - "world/bluez"
         - "world/bluez-runit"
