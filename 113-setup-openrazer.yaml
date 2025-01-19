@@ -1,7 +1,7 @@
 openrazer:
   setup_service:
     packages:
-      command: "sudo pacman -S {package} --needed --noconfirm"
+      command: "yay -S {package} --needed --noconfirm"
       package:
         - "extra/openrazer-daemon"
         - "extra/openrazer-driver-dkms"
