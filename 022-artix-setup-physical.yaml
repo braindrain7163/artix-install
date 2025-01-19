@@ -1,3 +1,4 @@
+---
 service_paths:
   service_path: "/run/runit/service/"
   sv_path: "/etc/runit/sv/"
