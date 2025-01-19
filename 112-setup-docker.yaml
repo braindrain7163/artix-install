@@ -1,7 +1,7 @@
 #docker
 setup_docker:
   packages:
-    command: 'sudo pacman -S {package} --needed --noconfirm'
+    command: 'yay -S {package} --needed --noconfirm'
     package:
       - 'world/docker'
       - 'extra/docker-compose'
