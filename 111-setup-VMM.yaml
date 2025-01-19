@@ -1,7 +1,7 @@
 # SPICE Host Setup
 setup_spice:
   packages:
-    command: 'sudo pacman -S {package} --needed --noconfirm'
+    command: 'yay -S {package} --needed --noconfirm'
     package:
       - 'extra/qemu-full'
       - 'world/virt-manager'
@@ -18,7 +18,7 @@ shell:
 libvirtd:
   setup_service:
     packages:
-      command: "sudo pacman -S {package} --needed --noconfirm"
+      command: "yay -S {package} --needed --noconfirm"
       package:
         - 'extra/libvirt'
         - 'extra/libvirt-runit'
