@@ -1,0 +1,90 @@
+---
+service_paths:
+  service_path: "/run/runit/service/"
+  sv_path: "/etc/runit/sv/"
+
+pacman_conf:
+  packages:
+    command: 'yay -S {package} --needed --noconfirm'
+    package:
+      - 'pacman-mirrors-helper-git'
+      - 'rankmirrors'
+      - 'extra/reflector'
+      - 'galaxy/artix-archlinux-support'
+  shell:
+    - 'sudo reflector --verbose --country "Australia" --latest 10 --sort rate --protocol https --save /etc/pacman.d/mirrorlist-arch'
+    - 'sudo pacman-key --populate archlinux'
+
+#install required packages
+required_packages:
+  packages:
+    command: 'yay -S {package} --needed --noconfirm'
+    package:
+      - 'world/xf86-video-intel'
+      - 'world/intel-media-driver'
+      - 'lib32/lib32-libglvnd'
+      - 'world/cups'
+      - 'world/cups-runit'
+      - 'world/nvtop'
+      - 'world/bluez'
+      - 'world/bluez-runit'
+      - 'world/bluez-utils'
+      - 'world/system-config-printer'
+      - 'world/xorg'
+
+# envycontrol for changing graphics cards
+setup_envycontrol:
+  shell:
+    # Download and set up nvidia-persistenced for Runit
+    - 'sudo curl -o ~/Downloads/nvidia-persistenced.template https://raw.githubusercontent.com/NVIDIA/nvidia-persistenced/main/init/sysv/nvidia-persistenced.template'
+    - 'sudo mv ~/Downloads/nvidia-persistenced.template /etc/runit/sv/nvidia-persistenced'
+    - 'sudo chmod +x /etc/runit/sv/nvidia-persistenced'
+
+  packages:
+    command: 'yay -S {package} --needed --noconfirm'
+    package:
+      - 'envycontrol'
+
+  shell:
+    # Download and replace envycontrol.py for Runit
+    - 'sudo curl -o ~/Downloads/envycontrol.py https://raw.githubusercontent.com/ToneyFoxxy/ToneyFoxxy-EnvyControl-Without-SystemD/main/Runit/envycontrol.py'
+    - 'sudo mv /usr/lib/python3.12/site-packages/envycontrol.py /usr/lib/python3.12/site-packages/envycontrol.py.bak'  # Backup the original file
+    - 'sudo cp ~/Downloads/envycontrol.py /usr/lib/python3.12/site-packages/envycontrol.py'
+    - 'sudo chmod +x /usr/lib/python3.12/site-packages/envycontrol.py'
+
+cupsd:
+  setup_service:
+    packages:
+      command: "yay -S {package} --needed --noconfirm"
+      package:
+        - "world/cups"
+        - "world/cups-runit"
+    path_init: true
+    run_file:
+      content: |
+        #!/bin/sh
+        exec /usr/bin/cupsd
+    log_file:
+      content: |
+        #!/bin/sh
+        exec svlogd -tt /var/log/cupsd
+    service_init: true
+
+bluetoothd:
+  setup_service:
+    packages:
+      command: "yay -S {package} --needed --noconfirm"
+      package:
+        - "world/bluez"
+        - "world/bluez-runit"
+        - "world/bluez-utils"
+    path_init: true
+    run_file:
+      content: |
+        #!/bin/sh
+        exec /usr/lib/bluetooth/bluetoothd
+    log_file:
+      content: |
+        #!/bin/sh
+        exec svlogd -tt /var/log/bluetoothd
+    service_init: true
