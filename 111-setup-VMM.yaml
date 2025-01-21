@@ -20,8 +20,8 @@ setup_service:
   packages:
     command: "yay -S {package} --needed --noconfirm"
     package:
-      - 'extra/libvirt'
-      - 'extra/libvirt-runit'
+      - 'world/libvirt'
+      - 'world/libvirt-runit'
   path_init: true
   run_file:
     content: |
