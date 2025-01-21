@@ -35,7 +35,6 @@ required_packages:
       - 'world/bluez-runit'
       - 'world/bluez-utils'
       - 'world/system-config-printer'
-      - 'world/xorg'
 
 # envycontrol for changing graphics cards
 setup_envycontrol:
