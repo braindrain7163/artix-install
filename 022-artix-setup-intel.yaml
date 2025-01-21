@@ -32,26 +32,6 @@ required_packages:
       - 'world/system-config-printer'
       - 'world/xorg'
 
-# envycontrol for changing graphics cards
-setup_envycontrol:
-  shell:
-    # Download and set up nvidia-persistenced for Runit
-    - 'sudo curl -o ~/Downloads/nvidia-persistenced.template https://raw.githubusercontent.com/NVIDIA/nvidia-persistenced/main/init/sysv/nvidia-persistenced.template'
-    - 'sudo mv ~/Downloads/nvidia-persistenced.template /etc/runit/sv/nvidia-persistenced'
-    - 'sudo chmod +x /etc/runit/sv/nvidia-persistenced'
-
-  packages:
-    command: 'yay -S {package} --needed --noconfirm'
-    package:
-      - 'envycontrol'
-
-  shell:
-    # Download and replace envycontrol.py for Runit
-    - 'sudo curl -o ~/Downloads/envycontrol.py https://raw.githubusercontent.com/ToneyFoxxy/ToneyFoxxy-EnvyControl-Without-SystemD/main/Runit/envycontrol.py'
-    - 'sudo mv /usr/lib/python3.12/site-packages/envycontrol.py /usr/lib/python3.12/site-packages/envycontrol.py.bak'  # Backup the original file
-    - 'sudo cp ~/Downloads/envycontrol.py /usr/lib/python3.12/site-packages/envycontrol.py'
-    - 'sudo chmod +x /usr/lib/python3.12/site-packages/envycontrol.py'
-
 cupsd:
   setup_service:
     packages:
