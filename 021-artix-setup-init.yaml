@@ -20,4 +20,6 @@ required_packages:
       - 'world/git'
       - 'world/wget'
       - 'world/htop'
+      - 'world/mesa'
+      - 'world/vulkan-intel'
       # - 'extra/libva'
