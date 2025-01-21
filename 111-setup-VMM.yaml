@@ -12,16 +12,13 @@ setup_spice:
       - 'world/virt-viewer'
       - 'world/dnsmasq'
       - 'world/bridge-utils'
-
+      - 'world/libvirt'
+      - 'world/libvirt-runit'
+      
 shell:
     - 'sudo mkdir -p /var/log/libvirt'  # Ensure log directory exists
     
 setup_service:
-  packages:
-    command: "yay -S {package} --needed --noconfirm"
-    package:
-      - 'world/libvirt'
-      - 'world/libvirt-runit'
   path_init: true
   run_file:
     content: |
