@@ -30,7 +30,6 @@ required_packages:
       - 'world/bluez-runit'
       - 'world/bluez-utils'
       - 'world/system-config-printer'
-      - 'world/xorg'
 
 cupsd:
   setup_service:
