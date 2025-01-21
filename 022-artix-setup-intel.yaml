@@ -25,7 +25,6 @@ required_packages:
       - 'lib32/lib32-libglvnd'
       - 'world/cups'
       - 'world/cups-runit'
-      - 'world/nvtop'
       - 'world/bluez'
       - 'world/bluez-runit'
       - 'world/bluez-utils'
