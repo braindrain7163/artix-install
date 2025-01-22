@@ -23,12 +23,6 @@ required_packages:
       - 'world/xf86-video-intel'
       - 'world/intel-media-driver'
       - 'lib32/lib32-libglvnd'
-      - 'world/cups'
-      - 'world/cups-runit'
-      - 'world/bluez'
-      - 'world/bluez-runit'
-      - 'world/bluez-utils'
-      - 'world/system-config-printer'
 
 cupsd:
   setup_service:
