@@ -212,7 +212,7 @@ EOF
     ln -s /etc/runit/sv/NetworkManager /run/runit/service/
 
     #basic system
-    sudo pacman -S bluez bluez-runit bluez-utils cups cups-runit xdg-utils xdg-user-dirs python --noconfirm
+    sudo pacman -S linux-headers dosfstools bluez bluez-runit bluez-utils cups cups-runit xdg-utils xdg-user-dirs python --noconfirm
 
     # Install and configure GRUB
     pacman -S grub os-prober efibootmgr --noconfirm
