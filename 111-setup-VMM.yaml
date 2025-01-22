@@ -17,18 +17,19 @@ setup_spice:
       
 shell:
     - 'sudo mkdir -p /var/log/libvirt'  # Ensure log directory exists
-    
-setup_service:
-  path_init: true
-  run_file:
-    content: |
-      #!/bin/sh
-      exec /usr/bin/libvirtd
-  log_file:
-    content: |
-      #!/bin/sh
-      exec svlogd -tt /var/log/libvirt
-  service_init: true
+
+libvirtd:
+  setup_service:
+    path_init: true
+    run_file:
+      content: |
+        #!/bin/sh
+        exec /usr/bin/libvirtd
+    log_file:
+      content: |
+        #!/bin/sh
+        exec svlogd -tt /var/log/libvirt
+    service_init: true
 
 shell:
     - 'sudo usermod -aG libvirt $USER'  # Add user to libvirt group
