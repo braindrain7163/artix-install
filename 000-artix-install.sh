@@ -131,7 +131,7 @@ fi
 echo "Step 3: Install the base system."
 read -p "Do you want to install the base system? (y/n): " CONFIRM
 if [[ "$CONFIRM" =~ ^[Yy]$ ]]; then
-    basestrap $MOUNT_POINT base base-devel runit elogind-runit linux linux-firmware nano intel-ucode git vi man-db htop neovim sudo
+    basestrap $MOUNT_POINT base base-devel runit elogind-runit linux linux-firmware nano intel-ucode git vi man-db neovim sudo
     echo "Base system installed."
 else
     echo "Skipping base system installation."
