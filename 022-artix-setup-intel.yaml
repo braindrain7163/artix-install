@@ -22,8 +22,6 @@ required_packages:
     package:
       - 'world/xf86-video-intel'
       - 'world/intel-media-driver'
-      - 'world/vulkan-intel'
-      - 'world/mesa'
       - 'lib32/lib32-libglvnd'
 
 cupsd:
