@@ -31,8 +31,8 @@ read -p "Enter timezone (default: Australia/Brisbane): " TIMEZONE
 TIMEZONE=${TIMEZONE:-Australia/Brisbane}  # Default to 'Australia/Brisbane'
 
 # Run partition setup script
-PARTITION_SCRIPT="$(dirname "$(realpath "$0")")/002-setup-partitions.sh"
-if [ -x "$PARTITION_SCRIPT" "$MOUNT_POINT" ]; then
+PARTITION_SCRIPT="./002-setup-partitions.sh"
+if [ -x "$PARTITION_SCRIPT" ]; then
     echo "Running partition setup script: $PARTITION_SCRIPT"
     "$PARTITION_SCRIPT"
 else
