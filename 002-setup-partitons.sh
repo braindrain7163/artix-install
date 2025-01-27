@@ -1,78 +1,126 @@
 #!/bin/bash
 
-echo "=== Identifying Drives ==="
+set -e
 
-# List available drives
-lsblk -o NAME,SIZE,TYPE | grep -w "disk"
-echo
-echo "Available drives:"
-lsblk -d -o NAME,SIZE,MODEL
+# Define the required partitions, sizes, and those to format
+PARTITIONS=("root" "opt" "var" "home" "swap")
+FORMAT_PARTITIONS=("opt" "var")
+PARTITION_SIZES=("128G" "128G" "355G" "" "64G")
 
-# Prompt user to select a drive
-echo
-read -p "Enter the drive name (e.g., sda) where you want to create partitions: " DRIVE
-DRIVE="/dev/$DRIVE"
+# Prompt for disks
+echo "Available disks:"
+lsblk -d -o NAME,SIZE | grep -v "loop" | grep -v "rom"
 
-# Verify the selected drive
-if [ ! -b "$DRIVE" ]; then
-    echo "Error: Drive $DRIVE not found!"
+read -p "Enter the disk to use for system partitions (root, opt, var, swap): " SYSTEM_DISK
+if [ -z "$SYSTEM_DISK" ]; then
+    echo "Error: No disk selected for system partitions."
     exit 1
 fi
 
-# Check for existing partitions
-echo
-echo "=== Checking Partitions on $DRIVE ==="
-lsblk "$DRIVE" -o NAME,LABEL,FSTYPE,SIZE
-PART_COUNT=$(lsblk -nr "$DRIVE" | wc -l)
+read -p "Enter the disk to use for the home partition: " HOME_DISK
+if [ -z "$HOME_DISK" ]; then
+    echo "Error: No disk selected for the home partition."
+    exit 1
+fi
 
-if [ "$PART_COUNT" -gt 1 ]; then
-    echo "Partitions detected on $DRIVE."
-    echo "If you proceed, existing data may be overwritten."
-    read -p "Do you want to proceed with partitioning? (yes/no): " CONFIRM
-    if [ "$CONFIRM" != "yes" ]; then
-        echo "Exiting."
+# Check for partitions and assign them
+for i in "${!PARTITIONS[@]}"; do
+    PARTITION_LABEL="${PARTITIONS[$i]}"
+    PARTITION_SIZE="${PARTITION_SIZES[$i]}"
+
+    PARTITION=$(lsblk -o LABEL,NAME -nr | grep "^$PARTITION_LABEL" | awk '{print $2}')
+
+    if [ -z "$PARTITION" ]; then
+        echo "Partition with label $PARTITION_LABEL not found."
+        read -p "Do you want to create the $PARTITION_LABEL partition (size: $PARTITION_SIZE)? [y/N]: " CREATE_PARTITION
+        if [[ "$CREATE_PARTITION" =~ ^[Yy]$ ]]; then
+            echo "Creating $PARTITION_LABEL partition..."
+
+            # Determine which disk to use
+            if [ "$PARTITION_LABEL" == "home" ]; then
+                DISK="$HOME_DISK"
+            else
+                DISK="$SYSTEM_DISK"
+            fi
+
+            echo "Using disk: /dev/$DISK"
+
+            # Create the partition
+            if [ "$PARTITION_LABEL" == "swap" ]; then
+                sudo parted /dev/$DISK mkpart primary linux-swap 0% $PARTITION_SIZE
+            else
+                sudo parted /dev/$DISK mkpart primary ext4 0% $PARTITION_SIZE
+            fi
+            sudo parted /dev/$DISK name $((i + 1)) $PARTITION_LABEL
+            sudo partprobe /dev/$DISK
+
+            PARTITION=$(lsblk -o LABEL,NAME -nr | grep "^$PARTITION_LABEL" | awk '{print $2}')
+
+            if [ -z "$PARTITION" ]; then
+                echo "Error: Failed to create partition $PARTITION_LABEL."
+                exit 1
+            fi
+
+            echo "Partition $PARTITION_LABEL created: /dev/$PARTITION"
+        else
+            echo "Skipping creation of $PARTITION_LABEL."
+            continue
+        fi
+    fi
+
+    echo "Partition for $PARTITION_LABEL found: /dev/$PARTITION"
+
+    # Assign partitions to variables
+    case $PARTITION_LABEL in
+        root)
+            ROOT_PARTITION="/dev/$PARTITION"
+            ;;
+        opt)
+            OPT_PARTITION="/dev/$PARTITION"
+            ;;
+        var)
+            VAR_PARTITION="/dev/$PARTITION"
+            ;;
+        home)
+            HOME_PARTITION="/dev/$PARTITION"
+            ;;
+        swap)
+            SWAP_PARTITION="/dev/$PARTITION"
+            ;;
+    esac
+done
+
+# Prompt to format each system partition except root and swap
+for PARTITION_LABEL in "${FORMAT_PARTITIONS[@]}"; do
+    PARTITION_VAR="${PARTITION_LABEL^^}_PARTITION"
+    PARTITION_DEVICE="${!PARTITION_VAR}"
+
+    if [ -n "$PARTITION_DEVICE" ]; then
+        read -p "Do you want to format the $PARTITION_LABEL partition ($PARTITION_DEVICE)? [y/N]: " FORMAT_PARTITION
+        if [[ "$FORMAT_PARTITION" =~ ^[Yy]$ ]]; then
+            echo "Formatting $PARTITION_LABEL partition: $PARTITION_DEVICE"
+            mkfs.ext4 -F "$PARTITION_DEVICE"
+        else
+            echo "Skipping formatting of $PARTITION_LABEL partition."
+        fi
+    else
+        echo "Error: Device for $PARTITION_LABEL not found."
         exit 1
     fi
+done
+
+# Set up swap
+if [ -n "$SWAP_PARTITION" ]; then
+    echo "Setting up swap partition: $SWAP_PARTITION"
+    mkswap "$SWAP_PARTITION"
+    swapon "$SWAP_PARTITION"
 fi
 
-# Create EFI Partition
-echo
-echo "=== Creating EFI Partition ==="
-EFI_SIZE="512MiB"
-echo "Creating a 512 MiB EFI partition on $DRIVE..."
-parted --script "$DRIVE" mklabel gpt
-parted --script "$DRIVE" mkpart primary fat32 1MiB "$EFI_SIZE"
-parted --script "$DRIVE" set 1 boot on
+# Mount partitions
+mount "$ROOT_PARTITION" /mnt
+mkdir -p /mnt/{opt,var,home}
+mount "$OPT_PARTITION" /mnt/opt
+mount "$VAR_PARTITION" /mnt/var
+mount "$HOME_PARTITION" /mnt/home
 
-# Assign EFI Partition
-if [[ "$DRIVE" == *"nvme"* ]]; then
-    EFI_PART="${DRIVE}p1"
-else
-    EFI_PART="${DRIVE}1"
-fi
-echo "Created EFI Partition: $EFI_PART"
-mkfs.vfat -F32 -n efi "$EFI_PART"
-
-# Create Root Partition
-echo
-echo "=== Creating Root Partition ==="
-ROOT_SIZE="512GiB"
-ROOT_START="$EFI_SIZE"
-echo "Creating a root partition of size $ROOT_SIZE on $DRIVE..."
-parted --script "$DRIVE" mkpart primary ext4 "$ROOT_START" "$ROOT_SIZE"
-
-# Assign Root Partition
-if [[ "$DRIVE" == *"nvme"* ]]; then
-    ROOT_PART="${DRIVE}p2"
-else
-    ROOT_PART="${DRIVE}2"
-fi
-echo "Created Root Partition: $ROOT_PART"
-mkfs.ext4 -L root "$ROOT_PART"
-
-# Output Summary
-echo
-echo "=== Summary of Created Partitions ==="
-echo "EFI_PART=\"$EFI_PART\" (Label: EFI, Size: 512 MiB)"
-echo "ROOT_PART=\"$ROOT_PART\" (Label: root, Size: 512 GiB)"
-echo "Partitions have been successfully created and formatted."
+echo "Partition setup complete."
