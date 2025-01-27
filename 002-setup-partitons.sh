@@ -2,6 +2,13 @@
 
 set -e
 
+# Accept the mount point as the first argument
+MOUNT_POINT="$1"
+if [ -z "$MOUNT_POINT" ]; then
+    echo "Error: No mount point provided."
+    exit 1
+fi
+
 # Define the required partitions, sizes, and those to format
 PARTITIONS=("root" "opt" "var" "home" "swap")
 FORMAT_PARTITIONS=("opt" "var")
@@ -117,10 +124,10 @@ if [ -n "$SWAP_PARTITION" ]; then
 fi
 
 # Mount partitions
-mount "$ROOT_PARTITION" /mnt
-mkdir -p /mnt/{opt,var,home}
-mount "$OPT_PARTITION" /mnt/opt
-mount "$VAR_PARTITION" /mnt/var
-mount "$HOME_PARTITION" /mnt/home
+mount "$ROOT_PARTITION" "$MOUNT_POINT"
+mkdir -p "$MOUNT_POINT"/{opt,var,home}
+mount "$OPT_PARTITION" "$MOUNT_POINT/opt"
+mount "$VAR_PARTITION" "$MOUNT_POINT/var"
+mount "$HOME_PARTITION" "$MOUNT_POINT/home"
 
 echo "Partition setup complete."
