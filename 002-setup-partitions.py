@@ -126,7 +126,7 @@ def list_partitions_with_parted(device):
     Return a list of dicts with fields: number, start, end, size, fs, name, flags
     """
     # Use -s (script mode) to avoid any interactive prompts.
-    cmd = f"parted -s -m {device} unit MiB print"
+    cmd = f"sudo parted -s -m {device} unit MiB print"
     output = run_cmd(cmd)
 
     partition_entries = []
