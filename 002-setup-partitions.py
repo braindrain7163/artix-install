@@ -13,41 +13,41 @@ DESIRED_PARTITIONS = {
     "efi": {
         "size":  "512MiB",
         "type":  "fat32",
-        "format": "mkfs.fat -F32",
+        "file_system_type": "mkfs.fat -F32",
         "mount": "/boot/efi",
         "partition_location": "system"
     },
     "root": {
         "size":  "128GiB",
         "type":  "ext4",
-        "format": "mkfs.ext4",
+        "file_system_type": "mkfs.ext4",
         "mount": "/",
         "partition_location": "system"
     },
     "swap": {
         "size":  "64GiB",
         "type":  "linuxswap",
-        "format": "mkswap",
+        "file_system_type": "mkswap",
         "partition_location": "system"
     },
     "opt": {
         "size":  "128GiB",
         "type":  "ext4",
-        "format": "mkfs.ext4",
+        "file_system_type": "mkfs.ext4",
         "mount": "/opt",
         "partition_location": "system"
     },
     "var": {
         # no size => might use the rest of the disk
         "type":  "ext4",
-        "format": "mkfs.ext4",
+        "file_system_type": "mkfs.ext4",
         "mount": "/var",
         "partition_location": "system"
     },
     "home": {
         # no size => might use the rest of the disk
         "type":  "ext4",
-        "format": "mkfs.ext4",
+        "file_system_type": "mkfs.ext4",
         "mount": "/home",
         "partition_location": "home"
     },
@@ -355,7 +355,7 @@ def assign_partitions(devices_dict, merged_data):
                 # We WOULD create + format it here. Placeholder:
                 print(f"  - Partition '{part_label}' does NOT exist on {disk_path}.")
                 print(f"    Would create: size={config.get('size','remaining')} type={config['type']}")
-                print(f"    Then format with: {config['format']}")
+                print(f"    Then format with: {config['file_system_type']}")
                 if "mount" in config:
                     print(f"    Then mount at: {config['mount']}")
                 # Example real parted commands might be:
