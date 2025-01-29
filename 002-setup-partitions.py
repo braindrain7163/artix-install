@@ -1,121 +1,226 @@
 #!/usr/bin/env python3
 
+import os
+import re
 import subprocess
 import sys
-import re
 
-def list_disk_devices():
-    """
-    Use lsblk to list devices of TYPE='disk'.
-    Returns a list of (dev_path, dev_type) tuples, for example:
-      [("/dev/sda", "sd"), ("/dev/nvme0n1", "nvme"), ...]
-    """
-    # lsblk -ln -o NAME,TYPE => prints lines like:
-    #   sda  disk
-    #   sda1 part
-    #   nvme0n1 disk
-    #   nvme0n1p1 part
-    cmd = "lsblk -ln -o NAME,TYPE"
-    result = subprocess.run(cmd, shell=True, capture_output=True, text=True, check=True)
+##############################################################################
+# STEP 1: Define desired partition labels and their configuration
+##############################################################################
 
-    devices = []
-    for line in result.stdout.strip().splitlines():
-        parts = line.split()
-        if len(parts) < 2:
+DESIRED_PARTITIONS = {
+    "EFI": {
+        "size":  "512MiB",
+        "type":  "fat32",
+        "format": "mkfs.fat -F32",
+        "mount": "/boot/efi",
+    },
+    "root": {
+        "size":  "128GiB",
+        "type":  "ext4",
+        "format": "mkfs.ext4",
+        "mount": "/",
+    },
+    "swap": {
+        "size":  "64GiB",
+        "type":  "linuxswap",
+        "format": "mkswap",
+    },
+    "opt": {
+        "size":  "128GiB",
+        "type":  "ext4",
+        "format": "mkfs.ext4",
+        "mount": "/opt",
+    },
+    "var": {
+        # no size => might use the rest of the disk
+        "type":  "ext4",
+        "format": "mkfs.ext4",
+        "mount": "/var",
+    },
+    "home": {
+        # no size => might use the rest of the disk
+        "type":  "ext4",
+        "format": "mkfs.ext4",
+        "mount": "/home",
+    },
+}
+
+##############################################################################
+# STEP 2: Utility function to run shell commands safely
+##############################################################################
+
+def run_cmd(cmd):
+    """Run a shell command and return stdout; raise SystemExit on error."""
+    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    if result.returncode != 0:
+        print(result.stderr, file=sys.stderr)
+        raise SystemExit(f"Command failed: {cmd}")
+    return result.stdout.strip()
+
+##############################################################################
+# STEP 3: Function to list and display all block devices
+##############################################################################
+
+def list_all_block_devices():
+    """
+    Uses lsblk to retrieve *all* block devices (disks, partitions, loops, etc.)
+    with columns: NAME, MAJ:MIN, RM, SIZE, RO, TYPE, MOUNTPOINTS.
+    
+    Prints them in a table for the user, then returns a list of device paths
+    whose TYPE is 'disk' (e.g., /dev/sda, /dev/nvme0n1).
+    """
+    columns = ["NAME","MAJ:MIN","RM","SIZE","RO","TYPE","MOUNTPOINTS"]
+    # -r = raw output, -n = no headings
+    cmd = f"lsblk -rno {','.join(columns)}"
+    output = run_cmd(cmd)
+
+    # Prepare data for printing
+    rows = []
+    for line in output.splitlines():
+        # Split into up to 7 columns; MOUNTPOINTS may contain spaces if multiple mountpoints
+        # so we split into 6 columns max, then treat the remainder as MOUNTPOINTS
+        parts = line.split(None, 6)
+        if len(parts) < 6:
             continue
-        name, typ = parts[0], parts[1]
+
+        name       = parts[0]
+        maj_min    = parts[1]
+        rm         = parts[2]
+        size       = parts[3]
+        ro         = parts[4]
+        typ        = parts[5]
+        mountpoint = parts[6] if len(parts) == 7 else ""
+
+        rows.append([name, maj_min, rm, size, ro, typ, mountpoint])
+
+    # Print a table header
+    header = ["NAME","MAJ:MIN","RM","SIZE","RO","TYPE","MOUNTPOINTS"]
+    print("\n=== All Block Devices (lsblk) ===")
+    print("-"*75)
+    print("{:<10} {:<7} {:<2} {:>7} {:>2} {:<6} {}".format(*header))
+    print("-"*75)
+    for r in rows:
+        print("{:<10} {:<7} {:<2} {:>7} {:>2} {:<6} {}".format(*r))
+
+    # Extract only those devices that are TYPE="disk"
+    # For each disk, we'll build a full path: e.g. /dev/sda or /dev/nvme0n1
+    disks = []
+    for r in rows:
+        (name, maj_min, rm, size, ro, typ, mountpoint) = r
         if typ == "disk":
-            # Construct full path
-            dev_path = f"/dev/{name}"
+            # The actual device path is "/dev/NAME", e.g. /dev/sda
+            disk_path = f"/dev/{name}"
+            disks.append(disk_path)
 
-            # Determine device_type: "sd" or "nvme" or fallback "other"
-            if re.match(r"^sd[a-z]+$", name):
-                dev_type = "sd"
-            elif re.match(r"^nvme\d+n\d+$", name):
-                dev_type = "nvme"
-            else:
-                dev_type = "other"
+    return sorted(disks)
 
-            devices.append((dev_path, dev_type))
-    return devices
+##############################################################################
+# STEP 4: Listing partitions and printing in a nice table
+##############################################################################
 
-def prompt_device_usage(dev_path, dev_type):
+def list_partitions_with_parted(device):
     """
-    Prompt user if this device should be used. If yes, ask how it will be used:
-    - system
-    - home
-    - none
-    - or custom label
-    Returns a dict with:
-      {
-        "use_device": bool,
-        "device_use": str,    # e.g. 'system', 'home', 'none', 'store', etc.
-        "device":     str,    # e.g. '/dev/sda'
-        "device_type": str,   # e.g. 'sd', 'nvme'
-      }
+    Use parted in machine-readable mode to list partitions.
+    Return a list of dicts with fields: number, start, end, size, fs, name, flags
     """
-    print(f"\nFound device: {dev_path} ({dev_type})")
+    cmd = f"parted -m {device} unit MiB print"
+    output = run_cmd(cmd)
 
-    # Ask if user wants to use this device
-    use_resp = input("  Use this device for partitioning? (y/n) ").strip().lower()
-    if use_resp not in ["y", "yes"]:
-        return {
-            "use_device": False,
-            "device_use": None,
-            "device": dev_path,
-            "device_type": dev_type,
-        }
+    partition_entries = []
+    for line in output.splitlines():
+        fields = line.split(":")
+        if not fields:
+            continue
+        # parted -m lines for partitions typically start with an integer partition number
+        try:
+            part_num = int(fields[0])  # partition number
+        except ValueError:
+            continue  # skip lines that aren't partition lines
 
-    # They want to use it => ask usage
-    print("  How do you want to use it?")
-    print("   1) system")
-    print("   2) home")
-    print("   3) none   (create partitions but do not mount, or skip usage?)")
-    print("   4) custom (e.g. store, opt, var, etc.)")
-    choice = input("  Enter choice [1-4]: ").strip()
+        # parted -m format => num : start : end : size : fs : name : flags
+        start    = fields[1]
+        end      = fields[2]
+        size     = fields[3]
+        fs       = fields[4]
+        pname    = fields[5] if len(fields) > 5 else ""
+        flags    = fields[6] if len(fields) > 6 else ""
 
-    if choice == "1":
-        device_use = "system"
-    elif choice == "2":
-        device_use = "home"
-    elif choice == "3":
-        device_use = "none"
-    elif choice == "4":
-        device_use = input("Enter custom label (e.g., store, var, opt): ").strip()
-        if not device_use:
-            device_use = "custom"
-    else:
-        print("  Invalid choice, defaulting to 'none'")
-        device_use = "none"
+        partition_entries.append({
+            "number": part_num,
+            "start":  start,
+            "end":    end,
+            "size":   size,
+            "fs":     fs,
+            "name":   pname,
+            "flags":  flags
+        })
+    return partition_entries
 
-    return {
-        "use_device": True,
-        "device_use": device_use,
-        "device": dev_path,
-        "device_type": dev_type,
-    }
+def print_partitions_table(device, partitions):
+    """
+    Print a table of the partitions discovered on 'device'.
+    """
+    headers = ["#","Start","End","Size","FS","Name","Flags"]
+    rows = []
+    for p in partitions:
+        rows.append([
+            str(p["number"]),
+            p["start"],
+            p["end"],
+            p["size"],
+            p["fs"],
+            p["name"],
+            p["flags"],
+        ])
+    print(f"\nPartitions on {device}:")
+    print("-"*60)
+    print("{:<3} {:>7} {:>7} {:>7} {:>8} {:>15} {:>10}".format(*headers))
+    print("-"*60)
+    for r in rows:
+        print("{:<3} {:>7} {:>7} {:>7} {:>8} {:>15} {:>10}".format(*r))
+
+##############################################################################
+# STEP 5: Checking for desired labels and applying logic (placeholder)
+##############################################################################
+
+def apply_label_logic(device, partitions):
+    """
+    Compare existing partitions on 'device' to the DESIRED_PARTITIONS dictionary:
+      - If the label is found, skip creation.
+      - If not found, we "would create" it.
+    
+    This is a simplified placeholder. Extend for actual create/format calls.
+    """
+    existing_labels = { p["name"] for p in partitions if p["name"] }
+
+    for desired_label, config in DESIRED_PARTITIONS.items():
+        if desired_label in existing_labels:
+            print(f"  - Label '{desired_label}' already exists on {device}, skipping creation.")
+        else:
+            print(f"  - Label '{desired_label}' not found on {device}, would create: size={config.get('size','remaining')} type={config['type']}")
+
+##############################################################################
+# MAIN
+##############################################################################
 
 def main():
-    print("Discovering disk devices (including /dev/sdX and /dev/nvmeXnY)...")
-    all_disks = list_disk_devices()
-
+    # 1) List ALL block devices in a table, get only those with TYPE=disk
+    all_disks = list_all_block_devices()
     if not all_disks:
-        print("No disk devices found.")
+        print("\nNo disk-type devices found on the system!")
         sys.exit(0)
 
-    devices_dict = []
-    for dev_path, dev_type in all_disks:
-        usage_info = prompt_device_usage(dev_path, dev_type)
-        devices_dict.append(usage_info)
+    print("\nDisk devices to consider for partitioning:", all_disks)
 
-    print("\n=== Summary of Selections ===")
-    for d in devices_dict:
-        print(d)
-
-    # If you'd like to do something more advanced (e.g. write to JSON, or proceed to partitioning), do so here.
-    # For example:
-    # import json
-    # print(json.dumps(devices_dict, indent=2))
+    # 2) For demonstration, we simply iterate over each discovered disk
+    #    and show existing partitions + apply label logic. In a real script,
+    #    you'd prompt the user which disk(s) to use, etc.
+    for dev in all_disks:
+        parts = list_partitions_with_parted(dev)
+        print_partitions_table(dev, parts)
+        apply_label_logic(dev, parts)
 
 if __name__ == "__main__":
     main()
