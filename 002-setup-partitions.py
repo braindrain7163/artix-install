@@ -11,7 +11,7 @@ import sys
 ##############################################################################
 
 DESIRED_PARTITIONS = {
-    "EFI": {
+    "efi": {
         "size":  "512MiB",
         "type":  "fat32",
         "format": "mkfs.fat -F32",
