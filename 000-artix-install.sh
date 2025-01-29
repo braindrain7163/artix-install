@@ -30,15 +30,15 @@ echo
 read -p "Enter timezone (default: Australia/Brisbane): " TIMEZONE
 TIMEZONE=${TIMEZONE:-Australia/Brisbane}  # Default to 'Australia/Brisbane'
 
-# Run partition setup script
-PARTITION_SCRIPT="./002-setup-partitions.sh"
-if [ -x "$PARTITION_SCRIPT" ]; then
-    echo "Running partition setup script: $PARTITION_SCRIPT"
-    "$PARTITION_SCRIPT"
-else
-    echo "Error: Partition setup script not found or not executable: $PARTITION_SCRIPT"
-    exit 1
-fi
+# # Run partition setup script
+# PARTITION_SCRIPT="./002-setup-partitions.sh"
+# if [ -x "$PARTITION_SCRIPT" ]; then
+#     echo "Running partition setup script: $PARTITION_SCRIPT"
+#     "$PARTITION_SCRIPT"
+# else
+#     echo "Error: Partition setup script not found or not executable: $PARTITION_SCRIPT"
+#     exit 1
+# fi
 
 
 # Step 1: Confirm Installing Base System
