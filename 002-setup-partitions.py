@@ -15,41 +15,41 @@ DESIRED_PARTITIONS = {
         "type":  "fat32",
         "format": "mkfs.fat -F32",
         "mount": "/boot/efi",
-        "device_use": "system"
+        "partition_location": "system"
     },
     "root": {
         "size":  "128GiB",
         "type":  "ext4",
         "format": "mkfs.ext4",
         "mount": "/",
-        "device_use": "system"
+        "partition_location": "system"
     },
     "swap": {
         "size":  "64GiB",
         "type":  "linuxswap",
         "format": "mkswap",
-        "device_use": "system"
+        "partition_location": "system"
     },
     "opt": {
         "size":  "128GiB",
         "type":  "ext4",
         "format": "mkfs.ext4",
         "mount": "/opt",
-        "device_use": "system"
+        "partition_location": "system"
     },
     "var": {
         # no size => might use the rest of the disk
         "type":  "ext4",
         "format": "mkfs.ext4",
         "mount": "/var",
-        "device_use": "system"
+        "partition_location": "system"
     },
     "home": {
         # no size => might use the rest of the disk
         "type":  "ext4",
         "format": "mkfs.ext4",
         "mount": "/home",
-        "device_use": "home"
+        "partition_location": "home"
     },
 }
 
@@ -229,7 +229,7 @@ def prompt_device_usage(all_disks):
     [
       {
         "use_device": True/False,
-        "device_use": "system"/"home"/"none"/...,
+        "partition_location": "system"/"home"/"none"/...,
         "device": "/dev/sda",
         "device_type": "sd"
       },
@@ -245,7 +245,7 @@ def prompt_device_usage(all_disks):
         if ans not in ["y", "yes"]:
             devices_dict.append({
                 "use_device": False,
-                "device_use": None,
+                "partition_location": None,
                 "device": disk,
                 "device_type": dev_type
             })
@@ -260,21 +260,21 @@ def prompt_device_usage(all_disks):
         choice = input("  Enter choice [1-4]: ").strip()
 
         if choice == "1":
-            device_use = "system"
+            partition_location = "system"
         elif choice == "2":
-            device_use = "home"
+            partition_location = "home"
         elif choice == "3":
-            device_use = "none"
+            partition_location = "none"
         elif choice == "4":
             custom_label = input("    Enter custom label (e.g. store, var, opt): ").strip()
-            device_use = custom_label if custom_label else "custom"
+            partition_location = custom_label if custom_label else "custom"
         else:
             print("  Invalid choice, defaulting to 'none'")
-            device_use = "none"
+            partition_location = "none"
 
         devices_dict.append({
             "use_device": True,
-            "device_use": device_use,
+            "partition_location": partition_location,
             "device": disk,
             "device_type": dev_type
         })
@@ -282,13 +282,13 @@ def prompt_device_usage(all_disks):
     return devices_dict
 
 ##############################################################################
-# 6) Assign Partitions Based on device_use
+# 6) Assign Partitions Based on partition_location
 ##############################################################################
 
 def assign_partitions(devices_dict, merged_data):
     """
     For each disk the user wants to use, find all DESIRED_PARTITIONS entries
-    that match the same 'device_use'. If a partition label in DESIRED_PARTITIONS
+    that match the same 'partition_location'. If a partition label in DESIRED_PARTITIONS
     doesn't exist on the disk, we "would create" it (placeholder). If it exists,
     we skip.
 
@@ -324,7 +324,7 @@ def assign_partitions(devices_dict, merged_data):
             continue
 
         disk_path = dev_info["device"]
-        usage = dev_info["device_use"]
+        usage = dev_info["partition_location"]
 
         parted_obj = parted_map.get(disk_path)
         if not parted_obj:
@@ -342,8 +342,8 @@ def assign_partitions(devices_dict, merged_data):
 
         # For each partition in DESIRED_PARTITIONS, check if it matches usage
         for part_label, config in DESIRED_PARTITIONS.items():
-            # e.g. "efi", "root", "home" => config["device_use"] in ["system","home"]
-            desired_use = config.get("device_use", "none")
+            # e.g. "efi", "root", "home" => config["partition_location"] in ["system","home"]
+            desired_use = config.get("partition_location", "none")
             if desired_use.lower() != usage.lower():
                 # Not for this device usage
                 continue
