@@ -125,7 +125,8 @@ def list_partitions_with_parted(device):
     Use parted in machine-readable mode to list partitions.
     Return a list of dicts with fields: number, start, end, size, fs, name, flags
     """
-    cmd = f"parted -m {device} unit MiB print"
+    # Use -s (script mode) to avoid any interactive prompts.
+    cmd = f"parted -s -m {device} unit MiB print"
     output = run_cmd(cmd)
 
     partition_entries = []
@@ -133,7 +134,6 @@ def list_partitions_with_parted(device):
         fields = line.split(":")
         if not fields:
             continue
-        # parted -m lines for partitions typically start with an integer partition number
         try:
             part_num = int(fields[0])  # partition number
         except ValueError:
