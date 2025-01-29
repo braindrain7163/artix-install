@@ -16,35 +16,41 @@ DESIRED_PARTITIONS = {
         "type":  "fat32",
         "format": "mkfs.fat -F32",
         "mount": "/boot/efi",
+        "device_use": "system"
     },
     "root": {
         "size":  "128GiB",
         "type":  "ext4",
         "format": "mkfs.ext4",
         "mount": "/",
+        "device_use": "system"
     },
     "swap": {
         "size":  "64GiB",
         "type":  "linuxswap",
         "format": "mkswap",
+        "device_use": "system"
     },
     "opt": {
         "size":  "128GiB",
         "type":  "ext4",
         "format": "mkfs.ext4",
         "mount": "/opt",
+        "device_use": "system"
     },
     "var": {
         # no size => might use the rest of the disk
         "type":  "ext4",
         "format": "mkfs.ext4",
         "mount": "/var",
+        "device_use": "system"
     },
     "home": {
         # no size => might use the rest of the disk
         "type":  "ext4",
         "format": "mkfs.ext4",
         "mount": "/home",
+        "device_use": "home"
     },
 }
 
