@@ -1,226 +1,161 @@
 #!/usr/bin/env python3
 
-import os
+import json
 import re
 import subprocess
-import sys
-
-##############################################################################
-# STEP 1: Define desired partition labels and their configuration
-##############################################################################
-
-DESIRED_PARTITIONS = {
-    "EFI": {
-        "size":  "512MiB",
-        "type":  "fat32",
-        "format": "mkfs.fat -F32",
-        "mount": "/boot/efi",
-    },
-    "root": {
-        "size":  "128GiB",
-        "type":  "ext4",
-        "format": "mkfs.ext4",
-        "mount": "/",
-    },
-    "swap": {
-        "size":  "64GiB",
-        "type":  "linuxswap",
-        "format": "mkswap",
-    },
-    "opt": {
-        "size":  "128GiB",
-        "type":  "ext4",
-        "format": "mkfs.ext4",
-        "mount": "/opt",
-    },
-    "var": {
-        # no size => might use the rest of the disk
-        "type":  "ext4",
-        "format": "mkfs.ext4",
-        "mount": "/var",
-    },
-    "home": {
-        # no size => might use the rest of the disk
-        "type":  "ext4",
-        "format": "mkfs.ext4",
-        "mount": "/home",
-    },
-}
-
-##############################################################################
-# STEP 2: Utility function to run shell commands safely
-##############################################################################
 
 def run_cmd(cmd):
-    """Run a shell command and return stdout; raise SystemExit on error."""
+    """
+    Run a shell command, return stdout on success, raise an exception on error.
+    """
     result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
-    if result.returncode != 0:
-        print(result.stderr, file=sys.stderr)
-        raise SystemExit(f"Command failed: {cmd}")
+    result.check_returncode()
     return result.stdout.strip()
 
-##############################################################################
-# STEP 3: Function to list and display all block devices
-##############################################################################
-
-def list_all_block_devices():
+def get_parted_json():
     """
-    Uses lsblk to retrieve *all* block devices (disks, partitions, loops, etc.)
-    with columns: NAME, MAJ:MIN, RM, SIZE, RO, TYPE, MOUNTPOINTS.
+    Runs 'parted -j -l' to get JSON output for all disks.
+    parted may return multiple JSON objects, one per disk.
+    We'll split them and parse into a list of Python objects.
     
-    Prints them in a table for the user, then returns a list of device paths
-    whose TYPE is 'disk' (e.g., /dev/sda, /dev/nvme0n1).
+    Returns something like:
+      [
+         { "disk": {...} },
+         { "disk": {...} },
+         ...
+      ]
     """
-    columns = ["NAME","MAJ:MIN","RM","SIZE","RO","TYPE","MOUNTPOINTS"]
-    # -r = raw output, -n = no headings
-    cmd = f"lsblk -rno {','.join(columns)}"
+    cmd = "sudo parted -j -l"
     output = run_cmd(cmd)
+    # parted often returns multiple top-level JSON objects separated by newlines.
+    # We'll split on boundaries where a line ends with } and the next line starts with {.
+    parted_entries = []
+    # Safely split multiple JSON objects if they exist:
+    chunks = re.split(r'(?<=\})\s*\n(?=\{)', output)
+    for chunk in chunks:
+        chunk = chunk.strip()
+        if chunk:
+            parted_entries.append(json.loads(chunk))
+    return parted_entries
 
-    # Prepare data for printing
-    rows = []
-    for line in output.splitlines():
-        # Split into up to 7 columns; MOUNTPOINTS may contain spaces if multiple mountpoints
-        # so we split into 6 columns max, then treat the remainder as MOUNTPOINTS
-        parts = line.split(None, 6)
-        if len(parts) < 6:
-            continue
-
-        name       = parts[0]
-        maj_min    = parts[1]
-        rm         = parts[2]
-        size       = parts[3]
-        ro         = parts[4]
-        typ        = parts[5]
-        mountpoint = parts[6] if len(parts) == 7 else ""
-
-        rows.append([name, maj_min, rm, size, ro, typ, mountpoint])
-
-    # Print a table header
-    header = ["NAME","MAJ:MIN","RM","SIZE","RO","TYPE","MOUNTPOINTS"]
-    print("\n=== All Block Devices (lsblk) ===")
-    print("-"*75)
-    print("{:<10} {:<7} {:<2} {:>7} {:>2} {:<6} {}".format(*header))
-    print("-"*75)
-    for r in rows:
-        print("{:<10} {:<7} {:<2} {:>7} {:>2} {:<6} {}".format(*r))
-
-    # Extract only those devices that are TYPE="disk"
-    # For each disk, we'll build a full path: e.g. /dev/sda or /dev/nvme0n1
-    disks = []
-    for r in rows:
-        (name, maj_min, rm, size, ro, typ, mountpoint) = r
-        if typ == "disk":
-            # The actual device path is "/dev/NAME", e.g. /dev/sda
-            disk_path = f"/dev/{name}"
-            disks.append(disk_path)
-
-    return sorted(disks)
-
-##############################################################################
-# STEP 4: Listing partitions and printing in a nice table
-##############################################################################
-
-def list_partitions_with_parted(device):
+def get_lsblk_json():
     """
-    Use parted in machine-readable mode to list partitions.
-    Return a list of dicts with fields: number, start, end, size, fs, name, flags
-    """
-    # Use -s (script mode) to avoid any interactive prompts.
-    cmd = f"sudo parted -s -m {device} unit MiB print"
-    output = run_cmd(cmd)
-
-    partition_entries = []
-    for line in output.splitlines():
-        fields = line.split(":")
-        if not fields:
-            continue
-        try:
-            part_num = int(fields[0])  # partition number
-        except ValueError:
-            continue  # skip lines that aren't partition lines
-
-        # parted -m format => num : start : end : size : fs : name : flags
-        start    = fields[1]
-        end      = fields[2]
-        size     = fields[3]
-        fs       = fields[4]
-        pname    = fields[5] if len(fields) > 5 else ""
-        flags    = fields[6] if len(fields) > 6 else ""
-
-        partition_entries.append({
-            "number": part_num,
-            "start":  start,
-            "end":    end,
-            "size":   size,
-            "fs":     fs,
-            "name":   pname,
-            "flags":  flags
-        })
-    return partition_entries
-
-def print_partitions_table(device, partitions):
-    """
-    Print a table of the partitions discovered on 'device'.
-    """
-    headers = ["#","Start","End","Size","FS","Name","Flags"]
-    rows = []
-    for p in partitions:
-        rows.append([
-            str(p["number"]),
-            p["start"],
-            p["end"],
-            p["size"],
-            p["fs"],
-            p["name"],
-            p["flags"],
-        ])
-    print(f"\nPartitions on {device}:")
-    print("-"*60)
-    print("{:<3} {:>7} {:>7} {:>7} {:>8} {:>15} {:>10}".format(*headers))
-    print("-"*60)
-    for r in rows:
-        print("{:<3} {:>7} {:>7} {:>7} {:>8} {:>15} {:>10}".format(*r))
-
-##############################################################################
-# STEP 5: Checking for desired labels and applying logic (placeholder)
-##############################################################################
-
-def apply_label_logic(device, partitions):
-    """
-    Compare existing partitions on 'device' to the DESIRED_PARTITIONS dictionary:
-      - If the label is found, skip creation.
-      - If not found, we "would create" it.
+    Runs 'lsblk -f -J' to get a JSON listing of all block devices with
+    filesystem info: FSTYPE, LABEL, UUID, FSAVAIL, FSUSE%, MOUNTPOINTS, etc.
     
-    This is a simplified placeholder. Extend for actual create/format calls.
+    Returns a dict with top-level key "blockdevices", e.g.:
+    {
+      "blockdevices": [
+        {
+          "name": "nvme0n1",
+          "type": "disk",
+          "children": [
+            {
+              "name": "nvme0n1p1",
+              "fstype": "vfat",
+              "label": "efi",
+              "uuid": "77A7-7C85",
+              ...
+            },
+            ...
+          ]
+        },
+        ...
+      ]
+    }
     """
-    existing_labels = { p["name"] for p in partitions if p["name"] }
+    cmd = "lsblk -f -J"
+    output = run_cmd(cmd)
+    return json.loads(output)
 
-    for desired_label, config in DESIRED_PARTITIONS.items():
-        if desired_label in existing_labels:
-            print(f"  - Label '{desired_label}' already exists on {device}, skipping creation.")
-        else:
-            print(f"  - Label '{desired_label}' not found on {device}, would create: size={config.get('size','remaining')} type={config['type']}")
+def build_partition_devpath(disk_path, part_number):
+    """
+    Given a disk path (e.g. /dev/nvme0n1 or /dev/sda) and a partition number (int),
+    return the appropriate partition device name:
+      - /dev/nvme0n1 + 'p' + number => /dev/nvme0n1p2 (for NVMe)
+      - /dev/sda + number => /dev/sda2 (for typical sdX)
+    
+    This is a common convention for Linux:
+      If the base name contains 'nvme', we insert 'p' before the partition number.
+      Otherwise, we just append the number.
+    """
+    if "nvme" in disk_path:
+        # e.g. /dev/nvme0n1 -> /dev/nvme0n1p1
+        return f"{disk_path}p{part_number}"
+    else:
+        # e.g. /dev/sda -> /dev/sda1
+        return f"{disk_path}{part_number}"
 
-##############################################################################
-# MAIN
-##############################################################################
+def find_lsblk_entry_by_name(lsblk_blockdevices, dev_name):
+    """
+    Recursively search the lsblk JSON "blockdevices" tree to find
+    the entry whose "name" equals dev_name (e.g. 'nvme0n1p2').
+
+    Returns the matching dict or None if not found.
+    """
+    for device in lsblk_blockdevices:
+        if device["name"] == dev_name:
+            return device
+        # Recurse into children if present
+        if "children" in device and device["children"]:
+            found = find_lsblk_entry_by_name(device["children"], dev_name)
+            if found:
+                return found
+    return None
+
+def merge_parted_and_lsblk():
+    """
+    Main function to:
+    1) Get parted JSON data (possibly multiple disks).
+    2) Get lsblk JSON data.
+    3) For each parted disk's partition, figure out the device name
+       (e.g. "nvme0n1p2"), find it in lsblk, and attach those fields.
+    4) Return the final combined data as a list of parted disk objects,
+       each with extra fields in partitions.
+    """
+    parted_data = get_parted_json()  # list of parted objects
+    lsblk_data = get_lsblk_json()    # dict with "blockdevices"
+
+    if "blockdevices" not in lsblk_data:
+        # Malformed or no blockdevices
+        return parted_data  # no merging possible
+
+    for parted_obj in parted_data:
+        # parted_obj typically has the shape: { "disk": {...} }
+        disk_info = parted_obj.get("disk", {})
+        disk_path = disk_info.get("path", "")    # e.g. "/dev/nvme0n1"
+        partitions = disk_info.get("partitions", [])
+
+        for part in partitions:
+            # parted partition object has "number": 1, 2, 3, ...
+            number = part["number"]
+            # build the partition device path, e.g. "/dev/nvme0n1p2"
+            part_dev = build_partition_devpath(disk_path, number)
+
+            # lsblk 'name' is just the basename, e.g. "nvme0n1p2"
+            # so we have to strip off "/dev/" from part_dev
+            dev_basename = part_dev.replace("/dev/", "")
+
+            # find the matching entry in lsblk
+            lsblk_entry = find_lsblk_entry_by_name(lsblk_data["blockdevices"], dev_basename)
+            if lsblk_entry:
+                # Attach whichever fields we care about to parted's partition object.
+                # For example: "fstype", "label", "uuid", "mountpoints", ...
+                part["lsblk-fstype"]       = lsblk_entry.get("fstype", "")
+                part["lsblk-fsver"]        = lsblk_entry.get("fsver", "")
+                part["lsblk-label"]        = lsblk_entry.get("label", "")
+                part["lsblk-uuid"]         = lsblk_entry.get("uuid", "")
+                part["lsblk-fsavail"]      = lsblk_entry.get("fsavail", "")
+                part["lsblk-fsuse%"]       = lsblk_entry.get("fsuse%", "")
+                part["lsblk-mountpoints"]  = lsblk_entry.get("mountpoints", [])
+
+    return parted_data
 
 def main():
-    # 1) List ALL block devices in a table, get only those with TYPE=disk
-    all_disks = list_all_block_devices()
-    if not all_disks:
-        print("\nNo disk-type devices found on the system!")
-        sys.exit(0)
+    combined_data = merge_parted_and_lsblk()
 
-    print("\nDisk devices to consider for partitioning:", all_disks)
-
-    # 2) For demonstration, we simply iterate over each discovered disk
-    #    and show existing partitions + apply label logic. In a real script,
-    #    you'd prompt the user which disk(s) to use, etc.
-    for dev in all_disks:
-        parts = list_partitions_with_parted(dev)
-        print_partitions_table(dev, parts)
-        apply_label_logic(dev, parts)
+    # Print or return as JSON
+    print(json.dumps(combined_data, indent=2))
 
 if __name__ == "__main__":
     main()
