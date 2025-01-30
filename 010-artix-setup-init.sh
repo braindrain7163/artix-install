@@ -1,5 +1,11 @@
 #!/bin/bash
+#setup networkmanager
+mkdir -p /run/runit/service
+ln -s /etc/runit/sv/NetworkManager /run/runit/service/
+sv up NetworkManager
+sv status NetworkManager
 
+#update mirrorlists
 sudo pacman -Sy
 sudo pacman -S archlinux-mirrorlist --noconfirm
 
