@@ -289,6 +289,7 @@ def prompt_device_usage(all_disks):
 ##############################################################################
 # 6) Assign Partitions Based on partition_location
 ##############################################################################
+
 def assign_partitions(devices_dict, merged_data):
     """
     For each disk the user wants to use, find all DESIRED_PARTITIONS entries
@@ -329,6 +330,16 @@ def assign_partitions(devices_dict, merged_data):
         disk_path = dobj.get("disk", {}).get("path", "")
         parted_map[disk_path] = dobj
 
+    # Check if home is allocated
+    home_allocated = any(dev_info["partition_location"].lower() == "home" for dev_info in devices_dict)
+
+    if not home_allocated:
+        print("No disk allocated to home. Allocating home to system disk.")
+        for dev_info in devices_dict:
+            if dev_info["partition_location"].lower() == "system":
+                dev_info["partition_location"] = "system+home"
+                break
+
     # Open the shell script file for writing
     with open("partition_script.sh", "w") as script_file:
         script_file.write("#!/bin/bash\n\n")
@@ -359,9 +370,8 @@ def assign_partitions(devices_dict, merged_data):
             partition_number = 1
             # For each partition in DESIRED_PARTITIONS, check if it matches usage
             for part_label, config in DESIRED_PARTITIONS.items():
-                # e.g. "efi", "root", "home" => config["partition_location"] in ["system","home"]
                 desired_use = config.get("partition_location", "none")
-                if desired_use.lower() != usage.lower():
+                if desired_use.lower() not in usage.lower():
                     # Not for this device usage
                     continue
 
@@ -378,7 +388,7 @@ def assign_partitions(devices_dict, merged_data):
                         script_file.write(f"mkdir -p {mount_point_prefix}{mount_point}\n")
                         script_file.write(f"mount {partition_dev_path} {mount_point_prefix}{mount_point}\n")
                 else:
-                    # We WOULD create + format it here. Placeholder:
+                    # Create + format it here
                     size = config.get('size', 'remaining')
                     ptype = config['type']
                     fs_type = config['file_system_type']
@@ -391,7 +401,7 @@ def assign_partitions(devices_dict, merged_data):
                         print(f"    Then mount at: {mount_point}")
 
                     # Write the commands to the shell script
-                    script_file.write(f"parted -s {disk_path} mkpart primary {ptype} {size}\n")
+                    script_file.write(f"parted -s {disk_path} mkpart primary {ptype} {size} name {partition_number} {part_label}\n")
                     script_file.write(f"{fs_type} {partition_dev_path}\n")
                     if mount_point and part_label.lower() != "swap":
                         script_file.write(f"mkdir -p {mount_point_prefix}{mount_point}\n")
