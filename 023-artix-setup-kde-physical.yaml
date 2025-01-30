@@ -4,12 +4,12 @@ kde_plasma:
     command: 'yay -S {package} --needed --noconfirm'
     package:
       # Base KDE Plasma packages
-      - world/xorg
+      # - world/xorg
       # - world/plasma
       # - world/kde-applications
-      - world/plasma-meta
+      # - world/plasma-meta
       # - world/sddm
-      # -world/sddm-runit
+      # - world/sddm-runit
       # Essential KDE Applications
       - world/kate
       - world/dolphin
