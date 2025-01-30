@@ -289,7 +289,6 @@ def prompt_device_usage(all_disks):
 ##############################################################################
 # 6) Assign Partitions Based on partition_location
 ##############################################################################
-
 def assign_partitions(devices_dict, merged_data):
     """
     For each disk the user wants to use, find all DESIRED_PARTITIONS entries
@@ -357,6 +356,7 @@ def assign_partitions(devices_dict, merged_data):
                 if fslabel:
                     existing_labels.add(fslabel.lower())
 
+            partition_number = 1
             # For each partition in DESIRED_PARTITIONS, check if it matches usage
             for part_label, config in DESIRED_PARTITIONS.items():
                 # e.g. "efi", "root", "home" => config["partition_location"] in ["system","home"]
@@ -365,16 +365,18 @@ def assign_partitions(devices_dict, merged_data):
                     # Not for this device usage
                     continue
 
+                partition_dev_path = build_partition_devpath(disk_path, partition_number)
+
                 # Check if a partition with that label already exists (case-insensitive match)
                 if part_label.lower() in existing_labels:
                     print(f"  - Partition '{part_label}' already present on {disk_path}.")
                     if config.get("format", False):
                         fs_type = config['file_system_type']
-                        script_file.write(f"{fs_type} {disk_path}\n")
+                        script_file.write(f"{fs_type} {partition_dev_path}\n")
                     if "mount" in config:
                         mount_point = config['mount']
                         script_file.write(f"mkdir -p {mount_point_prefix}{mount_point}\n")
-                        script_file.write(f"mount {disk_path} {mount_point_prefix}{mount_point}\n")
+                        script_file.write(f"mount {partition_dev_path} {mount_point_prefix}{mount_point}\n")
                 else:
                     # We WOULD create + format it here. Placeholder:
                     size = config.get('size', 'remaining')
@@ -390,10 +392,12 @@ def assign_partitions(devices_dict, merged_data):
 
                     # Write the commands to the shell script
                     script_file.write(f"parted -s {disk_path} mkpart primary {ptype} {size}\n")
-                    script_file.write(f"{fs_type} {disk_path}\n")
+                    script_file.write(f"{fs_type} {partition_dev_path}\n")
                     if mount_point and part_label.lower() != "swap":
                         script_file.write(f"mkdir -p {mount_point_prefix}{mount_point}\n")
-                        script_file.write(f"mount {disk_path} {mount_point_prefix}{mount_point}\n")
+                        script_file.write(f"mount {partition_dev_path} {mount_point_prefix}{mount_point}\n")
+                
+                partition_number += 1
 
     print("\nShell script 'partition_script.sh' has been created with the partitioning, formatting, and mounting commands.")
     
