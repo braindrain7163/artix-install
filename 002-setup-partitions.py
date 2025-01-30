@@ -295,7 +295,7 @@ def assign_partitions(devices_dict, merged_data):
     For each disk the user wants to use, find all DESIRED_PARTITIONS entries
     that match the same 'partition_location'. If a partition label in DESIRED_PARTITIONS
     doesn't exist on the disk, we "would create" it (placeholder). If it exists,
-    we skip.
+    we check if it needs to be formatted and mount it.
 
     merged_data is a list of parted disk objects, e.g.:
     [
@@ -367,7 +367,14 @@ def assign_partitions(devices_dict, merged_data):
 
                 # Check if a partition with that label already exists (case-insensitive match)
                 if part_label.lower() in existing_labels:
-                    print(f"  - Partition '{part_label}' already present on {disk_path}. Skipping.")
+                    print(f"  - Partition '{part_label}' already present on {disk_path}.")
+                    if config.get("format", False):
+                        fs_type = config['file_system_type']
+                        script_file.write(f"{fs_type} {disk_path}\n")
+                    if "mount" in config:
+                        mount_point = config['mount']
+                        script_file.write(f"mkdir -p {mount_point_prefix}{mount_point}\n")
+                        script_file.write(f"mount {disk_path} {mount_point_prefix}{mount_point}\n")
                 else:
                     # We WOULD create + format it here. Placeholder:
                     size = config.get('size', 'remaining')
@@ -389,6 +396,7 @@ def assign_partitions(devices_dict, merged_data):
                         script_file.write(f"mount {disk_path} {mount_point_prefix}{mount_point}\n")
 
     print("\nShell script 'partition_script.sh' has been created with the partitioning, formatting, and mounting commands.")
+    
 ##############################################################################
 # MAIN
 ##############################################################################
