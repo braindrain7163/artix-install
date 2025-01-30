@@ -33,6 +33,7 @@ required_packages:
 setup_envycontrol:
   shell:
     # Download and set up nvidia-persistenced for Runit
+    - 'mkdir -p ~/Downloads'
     - 'curl https://raw.githubusercontent.com/NVIDIA/nvidia-persistenced/main/init/sysv/nvidia-persistenced.template -o ~/Downloads/nvidia-persistenced.template'
     - 'sudo mv ~/Downloads/nvidia-persistenced.template /etc/runit/sv/nvidia-persistenced'
     - 'sudo chmod +x /etc/runit/sv/nvidia-persistenced'
