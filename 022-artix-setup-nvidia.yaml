@@ -46,6 +46,6 @@ setup_envycontrol:
   shell:
     # Download and replace envycontrol.py for Runit
     - 'curl https://raw.githubusercontent.com/ToneyFoxxy/ToneyFoxxy-EnvyControl-Without-SystemD/main/Runit/envycontrol.py -o ~/Downloads/envycontrol.py'
-    - 'sudo mv /usr/lib/python3.12/site-packages/envycontrol.py /usr/lib/python3.12/site-packages/envycontrol.py.bak'  # Backup the original file
-    - 'sudo cp ~/Downloads/envycontrol.py /usr/lib/python3.12/site-packages/envycontrol.py'
-    - 'sudo chmod +x /usr/lib/python3.12/site-packages/envycontrol.py'
+    - 'sudo mv /usr/lib/python3.13/site-packages/envycontrol.py /usr/lib/python3.13/site-packages/envycontrol.py.bak'  # Backup the original file
+    - 'sudo cp ~/Downloads/envycontrol.py /usr/lib/python3.13/site-packages/envycontrol.py'
+    - 'sudo chmod +x /usr/lib/python3.13/site-packages/envycontrol.py'
