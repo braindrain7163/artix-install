@@ -13,7 +13,7 @@ DESIRED_PARTITIONS = {
     "efi": {
         "size":  "512MiB",
         "type":  "fat32",
-        "format": false,
+        "format": False,
         "file_system_type": "mkfs.fat -F32",
         "mount": "/boot/efi",
         "partition_location": "system"
@@ -21,7 +21,7 @@ DESIRED_PARTITIONS = {
     "root": {
         "size":  "128GiB",
         "type":  "ext4",
-        "format": true,
+        "format": True,
         "file_system_type": "mkfs.ext4",
         "mount": "/",
         "partition_location": "system"
@@ -35,7 +35,7 @@ DESIRED_PARTITIONS = {
     "opt": {
         "size":  "128GiB",
         "type":  "ext4",
-        "format": false,
+        "format": False,
         "file_system_type": "mkfs.ext4",
         "mount": "/opt",
         "partition_location": "system"
@@ -43,7 +43,7 @@ DESIRED_PARTITIONS = {
     "var": {
         # no size => might use the rest of the disk
         "type":  "ext4",
-        "format": true,
+        "format": False,
         "file_system_type": "mkfs.ext4",
         "mount": "/var",
         "partition_location": "system"
@@ -51,7 +51,7 @@ DESIRED_PARTITIONS = {
     "home": {
         # no size => might use the rest of the disk
         "type":  "ext4",
-        "format": false,
+        "format": False,
         "file_system_type": "mkfs.ext4",
         "mount": "/home",
         "partition_location": "home"
