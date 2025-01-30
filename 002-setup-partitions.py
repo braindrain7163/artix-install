@@ -373,23 +373,22 @@ def assign_partitions(devices_dict, merged_data):
                     size = config.get('size', 'remaining')
                     ptype = config['type']
                     fs_type = config['file_system_type']
-                    mount_point = config['mount']
+                    mount_point = config.get('mount', None)
 
                     print(f"  - Partition '{part_label}' does NOT exist on {disk_path}.")
                     print(f"    Would create: size={size} type={ptype}")
                     print(f"    Then format with: {fs_type}")
-                    if "mount" in config:
+                    if mount_point:
                         print(f"    Then mount at: {mount_point}")
 
                     # Write the commands to the shell script
                     script_file.write(f"parted -s {disk_path} mkpart primary {ptype} {size}\n")
                     script_file.write(f"{fs_type} {disk_path}\n")
-                    if mount_point:
+                    if mount_point and part_label.lower() != "swap":
                         script_file.write(f"mkdir -p {mount_point_prefix}{mount_point}\n")
                         script_file.write(f"mount {disk_path} {mount_point_prefix}{mount_point}\n")
 
     print("\nShell script 'partition_script.sh' has been created with the partitioning, formatting, and mounting commands.")
-
 ##############################################################################
 # MAIN
 ##############################################################################
