@@ -315,58 +315,80 @@ def assign_partitions(devices_dict, merged_data):
       },
       ...
     ]
+
+    Additionally, exports a shell script to partition, format, and mount.
     """
+
+    # Prompt for a mount_point prefix
+    mount_point_prefix = input("Enter a mount point prefix (or leave empty for no prefix): ").strip()
+    if not mount_point_prefix:
+        mount_point_prefix = ""
+
     # Build a map from disk_path -> parted disk object
     parted_map = {}
     for dobj in merged_data:
         disk_path = dobj.get("disk", {}).get("path", "")
         parted_map[disk_path] = dobj
 
-    # For each device the user wants to use, find partitions to create
-    for dev_info in devices_dict:
-        if not dev_info["use_device"]:
-            print(f"\nSkipping {dev_info['device']} (user chose not to use).")
-            continue
+    # Open the shell script file for writing
+    with open("partition_script.sh", "w") as script_file:
+        script_file.write("#!/bin/bash\n\n")
 
-        disk_path = dev_info["device"]
-        usage = dev_info["partition_location"]
-
-        parted_obj = parted_map.get(disk_path)
-        if not parted_obj:
-            print(f"\nNo parted info for {disk_path}. Possibly parted didn't see it. Skipping.")
-            continue
-
-        print(f"\nAssigning partitions for device: {disk_path} (usage={usage})")
-
-        # Get existing filesystem labels from the merged parted+lsblk data
-        existing_labels = set()
-        for p in parted_obj["disk"].get("partitions", []):
-            fslabel = p.get("lsblk-label", "")
-            if fslabel:
-                existing_labels.add(fslabel.lower())
-
-        # For each partition in DESIRED_PARTITIONS, check if it matches usage
-        for part_label, config in DESIRED_PARTITIONS.items():
-            # e.g. "efi", "root", "home" => config["partition_location"] in ["system","home"]
-            desired_use = config.get("partition_location", "none")
-            if desired_use.lower() != usage.lower():
-                # Not for this device usage
+        # For each device the user wants to use, find partitions to create
+        for dev_info in devices_dict:
+            if not dev_info["use_device"]:
+                print(f"\nSkipping {dev_info['device']} (user chose not to use).")
                 continue
 
-            # Check if a partition with that label already exists (case-insensitive match)
-            if part_label.lower() in existing_labels:
-                print(f"  - Partition '{part_label}' already present on {disk_path}. Skipping.")
-            else:
-                # We WOULD create + format it here. Placeholder:
-                print(f"  - Partition '{part_label}' does NOT exist on {disk_path}.")
-                print(f"    Would create: size={config.get('size','remaining')} type={config['type']}")
-                print(f"    Then format with: {config['file_system_type']}")
-                if "mount" in config:
-                    print(f"    Then mount at: {config['mount']}")
-                # Example real parted commands might be:
-                # parted -s {disk_path} mkpart primary ext4 startMiB endMiB
-                # run_cmd("mkfs.ext4 /dev/sdaX")
-                # We'll leave that unimplemented for now.
+            disk_path = dev_info["device"]
+            usage = dev_info["partition_location"]
+
+            parted_obj = parted_map.get(disk_path)
+            if not parted_obj:
+                print(f"\nNo parted info for {disk_path}. Possibly parted didn't see it. Skipping.")
+                continue
+
+            print(f"\nAssigning partitions for device: {disk_path} (usage={usage})")
+
+            # Get existing filesystem labels from the merged parted+lsblk data
+            existing_labels = set()
+            for p in parted_obj["disk"].get("partitions", []):
+                fslabel = p.get("lsblk-label", "")
+                if fslabel:
+                    existing_labels.add(fslabel.lower())
+
+            # For each partition in DESIRED_PARTITIONS, check if it matches usage
+            for part_label, config in DESIRED_PARTITIONS.items():
+                # e.g. "efi", "root", "home" => config["partition_location"] in ["system","home"]
+                desired_use = config.get("partition_location", "none")
+                if desired_use.lower() != usage.lower():
+                    # Not for this device usage
+                    continue
+
+                # Check if a partition with that label already exists (case-insensitive match)
+                if part_label.lower() in existing_labels:
+                    print(f"  - Partition '{part_label}' already present on {disk_path}. Skipping.")
+                else:
+                    # We WOULD create + format it here. Placeholder:
+                    size = config.get('size', 'remaining')
+                    ptype = config['type']
+                    fs_type = config['file_system_type']
+                    mount_point = config['mount']
+
+                    print(f"  - Partition '{part_label}' does NOT exist on {disk_path}.")
+                    print(f"    Would create: size={size} type={ptype}")
+                    print(f"    Then format with: {fs_type}")
+                    if "mount" in config:
+                        print(f"    Then mount at: {mount_point}")
+
+                    # Write the commands to the shell script
+                    script_file.write(f"parted -s {disk_path} mkpart primary {ptype} {size}\n")
+                    script_file.write(f"{fs_type} {disk_path}\n")
+                    if mount_point:
+                        script_file.write(f"mkdir -p {mount_point_prefix}{mount_point}\n")
+                        script_file.write(f"mount {disk_path} {mount_point_prefix}{mount_point}\n")
+
+    print("\nShell script 'partition_script.sh' has been created with the partitioning, formatting, and mounting commands.")
 
 ##############################################################################
 # MAIN
