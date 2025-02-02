@@ -20,7 +20,7 @@ kde_plasma:
       - world/partitionmanager
       - world/kinfocenter
       - world/plasma-systemmonitor
-      - world/powerdevil
+      # - world/powerdevil
       - world/tlp
       - world/tlp-runit
       - world/tlp-rdw
