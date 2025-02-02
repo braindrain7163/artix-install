@@ -19,11 +19,20 @@ DESIRED_PARTITIONS = {
         "mount": "/boot/efi",
         "partition_location": "system"
     },
+    "boot": {
+        "size":  "1GiB",
+        "type":  "ext4",
+        "format": True,
+        "encrypt": False,
+        "file_system_type": "mkfs.ext4",
+        "mount": "/boot",
+        "partition_location": "system"
+    },
     "root": {
         "size":  "128GiB",
         "type":  "ext4",
         "format": True,
-        "encrypt": True,
+        "encrypt": False,
         "file_system_type": "mkfs.ext4",
         "mount": "/",
         "partition_location": "system"
