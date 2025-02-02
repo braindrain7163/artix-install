@@ -40,12 +40,11 @@ TIMEZONE=${TIMEZONE:-Australia/Brisbane}  # Default to 'Australia/Brisbane'
 #     exit 1
 # fi
 
-
 # Step 1: Confirm Installing Base System
 echo "Step 1: Install the base system."
 read -p "Do you want to install the base system? (y/n): " CONFIRM
 if [[ "$CONFIRM" =~ ^[Yy]$ ]]; then
-    basestrap $MOUNT_POINT base base-devel runit elogind-runit linux linux-firmware nano intel-ucode git vi man-db neovim sudo networkmanager networkmanager-runit
+    basestrap $MOUNT_POINT base base-devel runit elogind-runit linux linux-firmware nano intel-ucode git vi man-db neovim sudo networkmanager networkmanager-runit openssh openssh-runit
     echo "Base system installed."
 else
     echo "Skipping base system installation."
@@ -126,5 +125,6 @@ fi
 # Post-installation instructions
 echo "1. To log back in:"
 echo "   artix-chroot $MOUNT_POINT /bin/bash"
-
+echo "copy contents of git directory to user home, to ensure that the files are available after restart."
+echo "   cp ~/git $MOUNT_POINT/home/$USERNAME/"
 echo "Installation complete. Reboot into your new system when ready."
