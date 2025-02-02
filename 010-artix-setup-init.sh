@@ -5,6 +5,12 @@ ln -s /etc/runit/sv/NetworkManager /run/runit/service/
 sv up NetworkManager
 sv status NetworkManager
 
+#setup openssh
+mkdir -p /run/runit/service
+ln -s /etc/runit/sv/openssh /run/runit/service/
+sv up openssh
+sv status openssh
+
 #update mirrorlists
 sudo pacman -Sy
 sudo pacman -S archlinux-mirrorlist --noconfirm
