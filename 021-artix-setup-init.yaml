@@ -30,6 +30,8 @@ required_packages:
       - 'world/bluez-runit'
       - 'world/bluez-utils'
       - 'world/system-config-printer'
+      - 'openssh'
+      - 'world/openssh-runit'
 
 cupsd:
   setup_service:
