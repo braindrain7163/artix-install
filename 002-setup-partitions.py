@@ -14,6 +14,7 @@ DESIRED_PARTITIONS = {
         "size":  "512MiB",
         "type":  "fat32",
         "format": False,
+        "encrypt": False,
         "file_system_type": "mkfs.fat -F32",
         "mount": "/boot/efi",
         "partition_location": "system"
@@ -22,6 +23,7 @@ DESIRED_PARTITIONS = {
         "size":  "128GiB",
         "type":  "ext4",
         "format": True,
+        "encrypt": True,
         "file_system_type": "mkfs.ext4",
         "mount": "/",
         "partition_location": "system"
@@ -29,6 +31,7 @@ DESIRED_PARTITIONS = {
     "swap": {
         "size":  "64GiB",
         "type":  "linuxswap",
+        "encrypt": True,
         "file_system_type": "mkswap",
         "partition_location": "system"
     },
@@ -36,6 +39,7 @@ DESIRED_PARTITIONS = {
         "size":  "128GiB",
         "type":  "ext4",
         "format": False,
+        "encrypt": True,
         "file_system_type": "mkfs.ext4",
         "mount": "/opt",
         "partition_location": "system"
@@ -44,6 +48,7 @@ DESIRED_PARTITIONS = {
         # no size => might use the rest of the disk
         "type":  "ext4",
         "format": False,
+        "encrypt": True,
         "file_system_type": "mkfs.ext4",
         "mount": "/var",
         "partition_location": "system"
@@ -52,6 +57,7 @@ DESIRED_PARTITIONS = {
         # no size => might use the rest of the disk
         "type":  "ext4",
         "format": False,
+        "encrypt": True,
         "file_system_type": "mkfs.ext4",
         "mount": "/home",
         "partition_location": "home"
