@@ -1,4 +1,7 @@
 #!/bin/bash
+#prompt for init (runit/dinit/etc)
+
+# if runit:
 #setup networkmanager
 mkdir -p /run/runit/service
 ln -s /etc/runit/sv/NetworkManager /run/runit/service/
@@ -10,6 +13,11 @@ mkdir -p /run/runit/service
 ln -s /etc/runit/sv/openssh /run/runit/service/
 sv up openssh
 sv status openssh
+
+#if dinit:
+#setup NetworkManager
+#setup ssh
+
 
 #update mirrorlists
 sudo pacman -Sy
