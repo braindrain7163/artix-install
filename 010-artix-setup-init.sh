@@ -1,22 +1,36 @@
 #!/bin/bash
-#prompt for init (runit/dinit/etc)
+#!/bin/bash
 
-# if runit:
-#setup networkmanager
-mkdir -p /run/runit/service
-ln -s /etc/runit/sv/NetworkManager /run/runit/service/
-sv up NetworkManager
-sv status NetworkManager
+# Define services for Dinit
+DINIT_SERVICES=("NetworkManager" "sshd")
+RUNIT_SERVICES=("NetworkManager" "openssh")
 
-#setup openssh
-mkdir -p /run/runit/service
-ln -s /etc/runit/sv/openssh /run/runit/service/
-sv up openssh
-sv status openssh
+# Prompt user for init system
+read -p "Enter init system (runit/dinit): " INIT_SYSTEM
 
-#if dinit:
-#setup NetworkManager
-#setup ssh
+case "$INIT_SYSTEM" in
+    runit)
+        echo "Setting up services for Runit..."
+        mkdir -p /run/runit/service
+        for service in "${RUNIT_SERVICES[@]}"; do
+            ln -s /etc/runit/sv/$service /run/runit/service/
+            sv up $service
+            sv status $service
+        done
+        ;;
+    dinit)
+        echo "Setting up services for Dinit..."
+        for service in "${DINIT_SERVICES[@]}"; do
+            dinitctl enable $service
+            dinitctl start $service
+            dinitctl list | grep $service
+        done
+        ;;
+    *)
+        echo "Unsupported init system. Exiting."
+        exit 1
+        ;;
+esac
 
 
 #update mirrorlists
