@@ -38,13 +38,5 @@ kde_plasma:
       # Productivity and Extras
       - world/korganizer
       - world/kmymoney
-  setup_service:
-    shell:
-        # Enable SDDM (Display Manager) using Runit
-        - 'sudo ln -s /etc/runit/sv/sddm /run/runit/service'
-        - 'sudo sv start sddm'
-  configuration:
-    shell:
-        # Configure KDE Plasma as the default session
-        - 'echo "exec startplasma-x11" > ~/.xinitrc'
+
 

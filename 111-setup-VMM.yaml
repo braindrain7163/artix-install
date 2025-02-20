@@ -13,25 +13,10 @@ setup_spice:
       - 'world/dnsmasq'
       - 'world/bridge-utils'
       - 'world/libvirt'
-      - 'world/libvirt-runit'
+      - 'world/libvirt-dinit'
       
 shell:
     - 'sudo mkdir -p /var/log/libvirt'  # Ensure log directory exists
-
-libvirtd:
-  setup_service:
-    path_init: true
-    run_file:
-      content: |
-        #!/bin/sh
-        exec /usr/bin/libvirtd
-    log_file:
-      content: |
-        #!/bin/sh
-        exec svlogd -tt /var/log/libvirt
-    service_init: true
-
-shell:
     - 'sudo usermod -aG libvirt $USER'  # Add user to libvirt group
       
 file:
@@ -43,4 +28,4 @@ file:
     spice_tls = 0
 
 shell:
-  - 'sudo sv restart libvirtd'  # Restart libvirtd service to apply logging  
+  - 'sudo dinitctl enable libvirtd'  # Restart libvirtd service to apply logging  

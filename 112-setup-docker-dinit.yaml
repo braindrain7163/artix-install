@@ -1,0 +1,31 @@
+# docker
+setup_docker:
+  packages:
+    command: 'yay -S {package} --needed --noconfirm'
+    package:
+      - 'world/docker'
+      - 'extra/docker-compose'
+      - 'world/docker-dinit'
+      - 'extra/nvidia-container-toolkit'
+  shell:
+    - 'sudo mkdir -p /var/log/docker'  # Ensure log directory exists
+    - 'sudo mkdir -p /etc/docker'  # Create Docker configuration directory
+    - 'sudo usermod -aG docker $USER'  # Add user to Docker group
+  create:
+    sudo: true
+    file: '/etc/docker/daemon.json'
+    content: |
+      {
+        "default-runtime": "nvidia",
+        "runtimes": {
+          "nvidia": {
+            "path": "nvidia-container-runtime",
+            "runtimeArgs": []
+          }
+        }
+      }
+  shell: 
+    - 'sudo dinitctl start docker'  # Start Docker service
+    - 'sudo dinitctl enable docker'
+    - 'docker --version >> /var/log/docker/setup.log 2>&1'  # Log Docker version
+    - 'docker run hello-world >> /var/log/docker/setup.log 2>&1'  # Log hello-world test

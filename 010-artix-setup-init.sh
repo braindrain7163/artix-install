@@ -13,17 +13,17 @@ case "$INIT_SYSTEM" in
         echo "Setting up services for Runit..."
         mkdir -p /run/runit/service
         for service in "${RUNIT_SERVICES[@]}"; do
-            ln -s /etc/runit/sv/$service /run/runit/service/
-            sv up $service
-            sv status $service
+            sudo ln -s /etc/runit/sv/$service /run/runit/service/
+            sudo sv up $service
+            sudo sv status $service
         done
         ;;
     dinit)
         echo "Setting up services for Dinit..."
         for service in "${DINIT_SERVICES[@]}"; do
-            dinitctl enable $service
-            dinitctl start $service
-            dinitctl list | grep $service
+            sudo dinitctl enable $service
+            sudo dinitctl start $service
+            sudo dinitctl list | grep $service
         done
         ;;
     *)
