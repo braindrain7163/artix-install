@@ -1,0 +1,12 @@
+pacman-mirrors-helper-git
+rankmirrors
+extra/reflector
+galaxy/artix-archlinux-support
+world/xf86-video-intel
+world/nvidia
+world/nvidia-utils
+world/nvidia-settings
+world/vulkan-tools
+world/intel-media-driver
+lib32/lib32-libglvnd
+envycontrol
