@@ -71,7 +71,7 @@ fi
 
 # Step 3: Confirm Entering Chroot
 echo "Step 3: Chroot into the new system."
-read -p "Do you want to chroot into the new system? (y/n "$MOUNT_POINT": " CONFIRM
+read -p "Do you want to chroot into the new system? (y/n): " CONFIRM
 if [[ "$CONFIRM" =~ ^[Yy]$ ]]; then
     artix-chroot $MOUNT_POINT /bin/bash << EOT
 
@@ -104,11 +104,10 @@ EOF
     useradd -m -G wheel -s /bin/bash "$USERNAME"
     echo "Set password for $USERNAME:"
     echo "$USERNAME:$USER_PASSWORD" | chpasswd
-    usermod -a -G wheel "$USERNAME"
 
     # Allow sudo for the new user
     pacman -S sudo --noconfirm
-    echo "%wheel ALL=(ALL "$MOUNT_POINT" ALL" >> /etc/sudoers
+    echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
 
     # Install and configure GRUB
     pacman -S grub os-prober efibootmgr --noconfirm
@@ -125,6 +124,6 @@ fi
 # Post-installation instructions
 echo "1. To log back in:"
 echo "   artix-chroot $MOUNT_POINT /bin/bash"
-echo "copy contents of git directory to user home, to ensure that the files are available after restart."
-echo "   cp ~/git $MOUNT_POINT/home/$USERNAME/"
+echo "2. Copy contents of git directory to user home, to ensure that the files are available after restart."
+echo "   cp -r ~/git/* $MOUNT_POINT/home/$USERNAME/"
 echo "Installation complete. Reboot into your new system when ready."
