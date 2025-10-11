@@ -1,0 +1,27 @@
+# 🧱 BASE SYSTEM / UTILITIES
+system/base-devel
+world/git
+world/wget
+world/htop
+world/mesa
+world/vulkan-intel
+world/packagekit-qt6
+world/cups
+world/nvtop
+world/btop
+world/ncdu
+
+# 🔌 BLUETOOTH / PRINTING
+world/bluez
+world/bluez-utils
+world/system-config-printer
+
+# 🌐 NETWORKING / MIRRORS / SSH
+world/networkmanager
+world/dhcpcd
+extra/reflector
+openssh
+
+#other stuff
+world/ntfs-3g                  # useful for external NTFS game drives
+world/p7zip                    # some mods/tools ship as 7z

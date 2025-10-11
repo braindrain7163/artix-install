@@ -1,0 +1,25 @@
+# 🧭 KDE CORE APPLICATIONS
+world/kate
+world/dolphin
+world/konsole
+world/ark
+world/okular
+world/partitionmanager
+world/kinfocenter
+world/plasma-systemmonitor
+world/plasma-nm
+world/kdeconnect
+world/spectacle
+world/gwenview
+world/elisa
+world/dragon
+world/kdevelop
+world/plasma-workspace-wallpapers
+world/plasma-disks
+
+# ⚡ POWER MANAGEMENT (DINIT)
+world/powertop
+world/tlp
+world/tlp-dinit
+world/tlp-rdw
+tlpui

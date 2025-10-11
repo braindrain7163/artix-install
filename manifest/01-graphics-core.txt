@@ -1,0 +1,25 @@
+# 🧩 REPO BRIDGE / MIRRORS
+galaxy/artix-archlinux-support
+extra/reflector
+
+# 🎮 NVIDIA GRAPHICS (matching versions)
+world/nvidia
+world/nvidia-utils
+world/nvidia-settings
+world/nvidia-prime
+world/vulkan-tools
+lib32/libglvnd
+
+# 🎞️ INTEL VIDEO (decode support)
+world/intel-media-driver
+
+# 🌈 WAYLAND / PORTALS
+world/plasma-wayland-session
+world/qt6-wayland
+world/xdg-desktop-portal
+world/xdg-desktop-portal-kde
+
+# 🔊 PIPEWIRE AUDIO STACK (DINIT)
+# Only the core PipeWire daemon and session manager are needed.
+world/pipewire
+world/wireplumber

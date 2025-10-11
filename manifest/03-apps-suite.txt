@@ -1,0 +1,130 @@
+# -> No package found for world/virtualbox-host-modules-lts
+# -> No package found for world/podman-dinit
+# -> No package found for world/buildah
+# -> No AUR package found for whatsapp-for-linux-bin
+# -> No AUR package found for deno-bin
+ 
+# ─────────────────────────────────────────────
+# 🌐 BROWSERS
+# ─────────────────────────────────────────────
+galaxy/firefox
+brave-bin
+ungoogled-chromium-bin
+microsoft-edge-stable-bin
+freetube
+google-chrome              
+
+# ─────────────────────────────────────────────
+# 💬 MESSAGING & COMMUNICATION
+# ─────────────────────────────────────────────
+galaxy/signal-desktop
+galaxy/telegram-desktop
+extra/discord
+whatsapp-for-linux-bin       
+
+# ─────────────────────────────────────────────
+# 🔐 VPN & AUTHENTICATION
+# ─────────────────────────────────────────────
+surfshark-client
+surfshark-vpn-cli-bin
+nordvpn-bin                  
+extra/proton-vpn-gtk-app        
+proton-pass-bin              
+extra/bitwarden              
+
+# ─────────────────────────────────────────────
+# 🧾 OFFICE & PRODUCTIVITY
+# ─────────────────────────────────────────────
+onlyoffice-bin               
+extra/nextcloud-client
+
+# ─────────────────────────────────────────────
+# 🖼️ IMAGING, MEDIA, & DATA RECOVERY
+# ─────────────────────────────────────────────
+extra/rapid-photo-downloader
+world/krita
+world/gimp
+world/darktable
+world/testdisk               
+world/imagemagick
+world/flameshot
+world/kolourpaint
+
+# ─────────────────────────────────────────────
+# 🔄 REMOTE DESKTOP SUPPORT
+# ─────────────────────────────────────────────
+rustdesk-bin
+# ─────────────────────────────────────────────
+# ⚙️ DEVELOPMENT & SCRIPTING
+# ─────────────────────────────────────────────
+extra/bash-language-server
+world/shellcheck-bin
+extra/jupyterlab
+sublime-text-4               
+vscodium-bin                 
+
+# 🐍 Python stack
+world/python-pip
+world/python-virtualenv
+world/ipython
+world/python-numpy
+world/python-pandas
+world/python-openpyxl
+world/python-pyqt6
+world/python-requests
+
+# ☕ Java & Android stack
+extra/jdk-openjdk
+extra/maven
+extra/gradle
+extra/android-tools          
+extra/android-udev           
+android-studio               
+flutter-bin                 
+
+# 📦 JavaScript  Node ecosystem
+world/nodejs
+world/npm
+world/yarn
+pnpm-bin                     
+deno-bin                     
+extra/git-lfs
+
+# 🧰 Dev helpers
+btop
+jq
+yq
+fzf
+thefuck
+extra/httpie
+galaxy/sqlitebrowser
+
+# ─────────────────────────────────────────────
+# 🖥️ VIRTUALISATION  CONTAINERS
+# ─────────────────────────────────────────────
+# KVM/QEMU + libvirt stack
+world/qemu
+world/virt-manager
+world/edk2-ovmf
+world/libvirt
+world/libvirt-dinit         
+world/dnsmasq
+world/bridge-utils
+
+# VirtualBox (match host modules to your kernel)
+world/virtualbox
+world/virtualbox-host-modules-lts   
+
+# VMware (AUR, optional)
+#vmware-workstation                   
+#vmware-keymaps                       
+
+# Containers
+world/docker
+world/docker-dinit
+world/docker-compose
+world/podman
+world/podman-dinit
+world/containers-common
+world/buildah
+galaxy/distrobox

@@ -1,0 +1,49 @@
+# ─────────────────────────────────────────────
+# 🎯 CORE GAMING RUNTIME (Vulkan / tools)
+# ─────────────────────────────────────────────
+world/vulkan-tools
+lib32/libglvnd                 # 32-bit GL/Vulkan for legacy titles
+
+# ─────────────────────────────────────────────
+# 🧊 STEAM & PROTON
+# ─────────────────────────────────────────────
+steam                          # Steam client (yay resolves repo)
+protonup-qt                    # (AUR) manage Proton-GE builds per game
+steamcmd                       # optional: dedicated server tools
+
+# ─────────────────────────────────────────────
+# 🍷 WINE + HELPERS
+# ─────────────────────────────────────────────
+world/wine
+world/winetricks
+world/wine-gecko
+world/wine-mono
+protontricks                   # (AUR) Proton helper like winetricks
+
+# ─────────────────────────────────────────────
+# 🚀 GAME LAUNCHERS (NON-STEAM)
+# ─────────────────────────────────────────────
+extra/lutris
+heroic-games-launcher-bin      # (AUR) Epic/GOG/Amazon launcher
+bottles                        # sandboxed Wine prefixes (repo or AUR)
+
+# ─────────────────────────────────────────────
+# 📈 PERFORMANCE / OVERLAYS
+# ─────────────────────────────────────────────
+world/mangohud
+world/vkbasalt
+extra/gamescope                # Wayland microcompositor for games
+world/gamemode                 # Feral’s on-demand performance tuner
+
+# ─────────────────────────────────────────────
+# 🎮 CONTROLLERS & INPUT
+# ─────────────────────────────────────────────
+extra/steam-devices            # udev rules for Steam controllers
+world/game-devices-udev        # broad gamepad udev rules
+sc-controller                   # (AUR) advanced Steam Controller UI
+
+# ─────────────────────────────────────────────
+# 📦 NICE-TO-HAVES
+# ─────────────────────────────────────────────
+world/ntfs-3g                  # useful for external NTFS game drives
+world/p7zip                    # some mods/tools ship as 7z
